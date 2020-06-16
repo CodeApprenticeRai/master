@@ -24,3 +24,12 @@ def challenge(request, challenge_id):
     return render(request, 'app/challenge.html', context)
     # except:
         # return HttpResponse(status=500)
+
+def sign_up(request):
+    return render(request, 'app/sign_up.html')
+
+
+def login(request):
+    return render(request, 'app/login.html')
+
+
