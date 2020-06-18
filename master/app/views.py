@@ -4,7 +4,7 @@ from .models import User, Course, InstructorRole, Challenge, Question, QuestionC
 import app.forms
 
 def index(request):
-    return HttpResponse("suc suc suc suc suc suc suc")
+    return render(request, 'app/index.html')
 
 def challenge(request, challenge_id):
     # try:
