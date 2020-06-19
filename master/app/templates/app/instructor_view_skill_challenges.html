@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Master: {{ course.name }}</title>
+    <title>Master: {{ skill.parent_course.name }} {{ skill.name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS only -->
@@ -58,16 +58,16 @@
           <div id=""  class="container page-content">
 
             <div class="table-section" >
-              <p>{{course.name}}: Skills</p>
+              <p>{{ skill.parent_course.name }} {{ skill.name }} Challenges</p>
               <table class="table table-bordered common-text table-sm">
                 <thead class="thead-dark site-table-header">
                 <tr>
-                  <th scope="col">Course Name</th>
+                  <th scope="col">Challenge Name</th>
                 </tr>
                 </thead>
-                {% for skill in skills  %}
+                {% for challenge in challenges  %}
                 <tr>
-                  <td><a href="{% url 'instructor_view_skill_challenges' skill_id=skill.id  %}">{{skill.name}}</a></td>
+                  <td><a href="">Challenge {{challenge.name}}</a></td>
                 </tr>
                 {% endfor %}
               </table>

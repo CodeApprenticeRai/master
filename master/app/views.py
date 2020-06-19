@@ -44,4 +44,15 @@ def instructor_view_course_skills(request, course_id):
         "skills": skills
     }
 
-    return render (request, 'app/instructor_view_course_skills.html', context)
+    return render(request, 'app/instructor_view_course_skills.html', context)
+
+def instructor_view_skill_challenges(request, skill_id):
+    skill_obj = Skill.objects.get(id=skill_id)
+    challenges = Challenge.objects.filter(parent_skill=skill_obj)
+
+    context={
+        "skill": skill_obj,
+        "challenges": challenges
+    }
+
+    return render(request, 'app/instructor_view_skill_challenges.html', context)
