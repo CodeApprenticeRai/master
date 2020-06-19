@@ -21,11 +21,18 @@ class InstructorRole(models.Model):
     associated_course= models.ForeignKey(Course, on_delete=models.PROTECT)
 
     def __str__(self):
-       return str(self.associated_user) #! this is a hack
+       return str(self.associated_user.name)
+
+class Skill(models.Model):
+    name = models.CharField(max_length=255)
+    parent_course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    def __str__(self):
+       return str(self.name)
 
 class Challenge(models.Model):
     name = models.CharField(max_length=255)
-    parent_course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
 
     def __str__(self):
        return self.name
