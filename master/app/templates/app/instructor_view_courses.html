@@ -16,7 +16,6 @@
 
     <style>
 
-
     .master-symbol {
       font-family: 'Nunito';
     }
@@ -53,27 +52,26 @@
 
   </head>
   <body>
-      <div id='site-wrapper'>
-        <div id="site-header" class=""><div class="container master-symbol">Master</div></div>
-          <div id=""  class="container page-content">
+    <div id='site-wrapper'>
+      <div id="site-header" class=""><div class="container master-symbol">Master</div></div>
+        <div id=""  class="container page-content">
 
-            <div class="table-section" >
-              <p>Courses</p>
-              <table class="table table-bordered common-text">
-                <thead class="thead-dark site-table-header">
-                <tr>
-                  <th scope="col">Course Name</th>
-                </tr>
-                </thead>
-                {% for course in courses  %}
-                <tr>
-                  <td><a href="">{{course.name}}</a></td>
-                </tr>
-                {% endfor %}
-              </table>
-            </div>
-
+          <div class="table-section" >
+            <p>Courses</p>
+            <table class="table table-bordered common-text table-sm">
+              <thead class="thead-dark site-table-header">
+              <tr>
+                <th scope="col">Course Name</th>
+              </tr>
+              </thead>
+              {% for course in courses  %}
+              <tr>
+                <td><a href="{% url 'instructor_view_course_skills' course_id=course.id  %}">{{course.name}}</a></td>
+              </tr>
+              {% endfor %}
+            </table>
           </div>
+
         </div>
       </div>
   </body>
