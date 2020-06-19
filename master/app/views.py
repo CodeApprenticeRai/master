@@ -1,27 +1,24 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import User, Course, InstructorRole, Challenge, Question, QuestionChoice
+import app.forms
 
 def index(request):
-    return HttpResponse("suc suc suc suc suc suc suc")
+    return render(request, 'app/index.html')
 
 def challenge(request, challenge_id):
     # try:
     challenge_obj = Challenge.objects.get(pk=challenge_id)
-    questions_query_set = Question.objects.filter(parent_challenge=challenge_obj)
-
-
-    questions = { int(question.id) : { "question": question } for question in questions_query_set if not print(question.id) }
-
-    for question_id in questions:
-         questions[int(question_id)]["choices"] = QuestionChoice.objects.filter(parent_question=questions[question_id]["question"])
+    course_obj = challenge_obj.parent_course
 
     context = {
+        "course": course_obj,
         "challenge": challenge_obj,
-        "questions": questions
+        "form": app.forms.ChallengeForm(challenge_id)
     }
 
     return render(request, 'app/challenge.html', context)
+<<<<<<< HEAD
     # except:
         # return HttpResponse(status=500)
 
@@ -33,3 +30,5 @@ def login(request):
     return render(request, 'app/login.html')
 
 
+=======
+>>>>>>> 5cbde101b6eec6faaff5b53b8a56dea3ee19cbbb
