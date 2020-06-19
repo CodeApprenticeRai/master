@@ -20,7 +20,7 @@ class ChallengeForm(forms.Form):
 
             question_display_title = '{}: {}'.format(question_number+1, question.text)
             self.fields[question_display_title] = forms.ChoiceField(choices=django_formatted_choices, widget=forms.RadioSelect)
-
+            self.fields[question_display_title].required=True
 
 
 

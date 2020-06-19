@@ -63,11 +63,13 @@
                 <thead class="thead-dark site-table-header">
                 <tr>
                   <th scope="col">Challenge Name</th>
+                  <th scope="col"></th>
                 </tr>
                 </thead>
                 {% for challenge in challenges  %}
                 <tr>
                   <td><a href="">Challenge {{challenge.name}}</a></td>
+                  <td><a href="{% url 'challenge' challenge_id=challenge.id %}">Preview Challenge</a></td>
                 </tr>
                 {% endfor %}
               </table>

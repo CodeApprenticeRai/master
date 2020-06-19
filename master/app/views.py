@@ -8,10 +8,8 @@ def index(request):
 
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
-    course_obj = challenge_obj.parent_course
 
     context = {
-        "course": course_obj,
         "challenge": challenge_obj,
         "form": app.forms.ChallengeForm(challenge_id)
     }
