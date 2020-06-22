@@ -7,14 +7,43 @@ def index(request):
     return render(request, 'app/index.html')
 
 def challenge(request, challenge_id):
-    challenge_obj = Challenge.objects.get(pk=challenge_id)
+    if request.method == 'POST':
+        # !! does not generalize,
+        # assumes that all keys in request.POST
+        # is a form_question
+        form_question_count = 0
+        correct_answer_count = 0
 
-    context = {
-        "challenge": challenge_obj,
-        "form": app.forms.ChallengeForm(challenge_id)
-    }
+        # print(request.POST)
+        for form_question in request.POST:
+            if ( form_question == "csrfmiddlewaretoken" ):
+                continue
 
-    return render(request, 'app/challenge.html', context)
+            user_choice_id = request.POST[form_question]
+            choice_obj = QuestionChoice.objects.get(id=user_choice_id)
+
+            print([choice_obj.id, choice_obj.text, choice_obj.correct_answer])
+            if (choice_obj.correct_answer):
+                correct_answer_count += 1
+
+            form_question_count += 1
+
+        context = {
+            'correct_answer_count': correct_answer_count,
+            'form_question_count': form_question_count,
+            'percentage_correct': (correct_answer_count /  form_question_count) * 100
+        }
+
+        return render(request, 'app/challenge_report.html', context)
+
+    else:
+        challenge_obj = Challenge.objects.get(pk=challenge_id)
+
+        context = {
+            "challenge": challenge_obj,
+            "form": app.forms.ChallengeForm(challenge_id)
+        }
+        return render(request, 'app/challenge.html', context)
 
 # !! For now ( until moving to sessions ) : Given an instructor_id,
 # return tablelists of all courses that user is an instructor of

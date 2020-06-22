@@ -47,7 +47,7 @@ class Question(models.Model):
 class QuestionChoice(models.Model):
     parent_question = models.ForeignKey(Question, on_delete=models.CASCADE )
     text = models.TextField()
-    correct_answer = models.BooleanField(default=False)
+    correct_answer = models.BooleanField()
 
     def __str__(self):
        return self.text

@@ -16,7 +16,7 @@ class ChallengeForm(forms.Form):
         for question_number, question in enumerate(questions):
             question_choices = qm.QuestionChoice.objects.filter(parent_question=question)
 
-            django_formatted_choices = [ (choice.text, choice.text) for choice in question_choices ]
+            django_formatted_choices = [ (choice.id, choice.text) for choice in question_choices ]
 
             question_display_title = '{}: {}'.format(question_number+1, question.text)
             self.fields[question_display_title] = forms.ChoiceField(choices=django_formatted_choices, widget=forms.RadioSelect)
