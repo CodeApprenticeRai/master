@@ -66,7 +66,7 @@
               </thead>
               {% for course in courses  %}
               <tr>
-                <td><a href="{% url 'instructor_view_course_skills' course_id=course.id  %}">{{course.name}}</a></td>
+                <td><a href="{% url 'course_view' course_id=course.id  %}">{{course.name}}</a></td>
               </tr>
               {% endfor %}
             </table>

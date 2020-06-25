@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Master</title>
+    <title>Master: {{ course.name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS only -->
@@ -16,54 +16,64 @@
 
     <style>
 
+
+    .master-symbol {
+      font-family: 'Nunito';
+    }
+
     body {
       background-color: #e9ecef;
-      font-family:sans-serif;
+      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 0.7rem;
       height: 100%;
       width: 100%;
     }
-
-    page-container {
-      height: 100%;
-      width: 100%;
-      text-align: center;
-    }
-
-    #site-header-container {
-      margin: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-right: -50%;
-      transform: translate(-50%, -50%);
-      width: 77%;
-    }​
 
     #site-header {
-
+      font-size: 1rem;
+      padding-top: 1.7rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid;
+      border-radius: 1px;
     }
 
-    #intro-text {
-      margin-top: 0.6rem;
-      margin-bottom: 2.3rem;
+    .table-section {
+      padding-top: 2rem;
+    }
+
+    .common-text {
       font-family: 'Source Sans Pro', sans-serif;
+      font-size: 0.7rem;
     }
-
-    .center {
-      text-align: center;
+    .site-table-header {
+      border-top: 1px solid;
+      border-radius: 1px;
     }
-
-
-
     </style>
 
   </head>
   <body>
-      <div id="site-header-container"  class="center">
-        <h1 id="site-header" style="font-size: 6.3rem;font-family: 'Nunito', sans-serif;">Master</h1>
-        <p id="intro-text">Master skills. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <button type="button" class="btn btn-light">Sign Up | Log In</button>
-      </div>
-  </body>
+      <div id='site-wrapper'>
+        <div id="site-header" class=""><div class="container master-symbol">Master</div></div>
+          <div id=""  class="container page-content">
 
+            <div class="table-section" >
+              <p>{{course.name}}: Skills</p>
+              <table class="table table-bordered common-text table-sm">
+                <thead class="thead-dark site-table-header">
+                <tr>
+                  <th scope="col">Course Name</th>
+                </tr>
+                </thead>
+                {% for skill in skills  %}
+                <tr>
+                  <td><a href="{% url 'skill_view' skill_id=skill.id  %}">{{skill.name}}</a></td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+
+          </div>
+        </div>
+  </body>
 </html>

@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Master: {{ course.name }}</title>
+    <title>Master: Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS only -->
@@ -15,7 +15,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&family=Open+Sans&family=Source+Sans+Pro&display=swap" rel="stylesheet">
 
     <style>
-
 
     .master-symbol {
       font-family: 'Nunito';
@@ -37,6 +36,16 @@
       border-radius: 1px;
     }
 
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-right: -50%;
+      transform: translate(-50%, -50%);
+      width: 77%;
+    }
+
     .table-section {
       padding-top: 2rem;
     }
@@ -49,31 +58,49 @@
       border-top: 1px solid;
       border-radius: 1px;
     }
+    .hover-card {
+      max-width: 15.3rem;
+      border: 1px solid;
+      border-radius: 6px;
+      background-color: #e1e2e6;
+      padding-bottom: 46px;
+    }
+
+    /*  */
+    label {
+      margin-top: 8px;
+      margin-bottom: 3px;
+      font-size: 17px;
+    }
+
+    input {
+      height: 31px;
+      margin-bottom: 26px;
+      width: 100%;
+      border-radius: 5px;
+    }
+
+    button {
+      float: right;
+      font-size: 17px;
+      margin-bottom: 0;
+    }
+
     </style>
 
   </head>
   <body>
-      <div id='site-wrapper'>
-        <div id="site-header" class=""><div class="container master-symbol">Master</div></div>
-          <div id=""  class="container page-content">
-
-            <div class="table-section" >
-              <p>{{course.name}}: Skills</p>
-              <table class="table table-bordered common-text table-sm">
-                <thead class="thead-dark site-table-header">
-                <tr>
-                  <th scope="col">Course Name</th>
-                </tr>
-                </thead>
-                {% for skill in skills  %}
-                <tr>
-                  <td><a href="{% url 'instructor_view_skill_challenges' skill_id=skill.id  %}">{{skill.name}}</a></td>
-                </tr>
-                {% endfor %}
-              </table>
-            </div>
-
-          </div>
+    <div id='site-wrapper'>
+      <div id=""  class="container page-content">
+        <div class="card-body center hover-card">
+          <form method="POST">
+            {% csrf_token %}
+            {{form}}
+            <button type="submit">Login</button>
+            <p><a href="{% url 'sign_up' %}">Sign Up</a></p>
+          </form>
         </div>
+      </div>
+    </div>
   </body>
 </html>

@@ -1,14 +1,5 @@
 from django.db import models
-
-
-class User(models.Model):
-    name=models.CharField(max_length=200)
-    #username
-    #email
-    #etc
-
-    def __str__(self):
-        return self.name
+from django.contrib.auth.models import User
 
 class Course(models.Model):
     name = models.CharField(max_length=255)
@@ -21,7 +12,7 @@ class InstructorRole(models.Model):
     associated_course= models.ForeignKey(Course, on_delete=models.PROTECT)
 
     def __str__(self):
-       return str(self.associated_user.name)
+       return str(self.associated_user.username)
 
 class Skill(models.Model):
     name = models.CharField(max_length=255)

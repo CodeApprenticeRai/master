@@ -1,10 +1,73 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import *
 import app.forms
 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import logout as django_logout, authenticate, login as django_login
+
+
 def index(request):
-    return render(request, 'app/index.html')
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        return render(request, 'app/intro_page.html')
+
+def sign_up(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user_obj = form.save()
+            username  =  form.cleaned_data.get('username')
+            django_login(request, user_obj)
+            return redirect("home")
+        else:
+            return HttpResponse("Something silly happened.")
+    context = {
+        "form": UserCreationForm
+    }
+
+    return render(request, 'app/sign_up.html', context)
+
+def login(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == "POST":
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                django_login(request, user)
+                # messages.info(request, f"You are now logged in as {username}")
+                return redirect('home')
+            else:
+                pass
+                # messages.error(request, "Invalid username or password.")
+        else:
+            pass
+            # messages.error(request, "Invalid username or password.")
+
+    context = {
+        'form': AuthenticationForm
+    }
+
+    return render(request, 'app/login.html', context)
+
+
+def logout(request):
+    if request.user.is_authenticated:
+        django_logout(request)
+        # messages.info(request, "Logged out successfully!")
+
+    return redirect('index')
+
+
 
 def challenge(request, challenge_id):
     if request.method == 'POST':
@@ -47,9 +110,15 @@ def challenge(request, challenge_id):
 
 # !! For now ( until moving to sessions ) : Given an instructor_id,
 # return tablelists of all courses that user is an instructor of
-def instructor_view_courses(request, instructor_id):
+@login_required
+def home(request):
+    if (not request.user):
+        return HttpResponse("The user is not bound to session, debug this.")
+
     # get instructor object
-    instructor_obj = User.objects.get(id=instructor_id)
+    instructor_obj = request.user
+
+    print(instructor_obj)
 
     # extract associated_courses
     courses_led_by_instructor = [ role_object.associated_course for role_object in InstructorRole.objects.filter(associated_user=instructor_obj) ]
@@ -60,9 +129,11 @@ def instructor_view_courses(request, instructor_id):
         "courses": courses_led_by_instructor
     }
 
-    return render(request, 'app/instructor_view_courses.html', context)
+    return render(request, 'app/home.html', context)
 
-def instructor_view_course_skills(request, course_id):
+# Render all the skills of a specified course
+@login_required
+def course_view(request, course_id):
     course_obj = Course.objects.get(id=course_id)
     skills = Skill.objects.filter(parent_course=course_obj)
 
@@ -71,9 +142,10 @@ def instructor_view_course_skills(request, course_id):
         "skills": skills
     }
 
-    return render(request, 'app/instructor_view_course_skills.html', context)
+    return render(request, 'app/course_view.html', context)
 
-def instructor_view_skill_challenges(request, skill_id):
+@login_required
+def skill_view(request, skill_id):
     skill_obj = Skill.objects.get(id=skill_id)
     challenges = Challenge.objects.filter(parent_skill=skill_obj)
 
@@ -82,4 +154,4 @@ def instructor_view_skill_challenges(request, skill_id):
         "challenges": challenges
     }
 
-    return render(request, 'app/instructor_view_skill_challenges.html', context)
+    return render(request, 'app/skill_view.html', context)
