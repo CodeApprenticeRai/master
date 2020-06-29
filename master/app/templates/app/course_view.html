@@ -24,7 +24,7 @@
     body {
       background-color: #e9ecef;
       font-family: 'Source Sans Pro', sans-serif;
-      font-size: 0.7rem;
+      font-size: 1.2rem;
       height: 100%;
       width: 100%;
     }
@@ -67,12 +67,22 @@
                 </thead>
                 {% for skill in skills  %}
                 <tr>
-                  <td><a href="{% url 'skill_view' skill_id=skill.id  %}">{{skill.name}}</a></td>
+                  <td>
+                    <a href="{% url 'skill_view' skill_id=skill.id  %}">{{skill.name}} </a>
+                  </td>
+                  <td>
+                    <input type="submit" value = "Remove Skill" class="btn btn-dark"><a  ></a></input>
+                  </td>
                 </tr>
                 {% endfor %}
               </table>
             </div>
-
+            <div class="container">
+              <form>
+                {{ form }}
+                <input type="submit" name = "Add Skill" value = "Add Skill"class="btn btn-dark"> </input>
+              </form>
+            </div>
           </div>
         </div>
   </body>

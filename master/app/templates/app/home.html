@@ -23,7 +23,7 @@
     body {
       background-color: #e9ecef;
       font-family: 'Source Sans Pro', sans-serif;
-      font-size: 0.7rem;
+      font-size: 1.2rem;
       height: 100%;
       width: 100%;
     }
@@ -66,12 +66,22 @@
               </thead>
               {% for course in courses  %}
               <tr>
-                <td><a href="{% url 'course_view' course_id=course.id  %}">{{course.name}}</a></td>
+                <td> <a href="{% url 'course_view' course_id=course.id  %}">{{course.name}} </a> </td>
+                <td>
+                  <form action="{% url 'home'  %}" method='GET'>
+                    <input type="submit" name = {{course.id}} value = "Remove Course" class="btn btn-dark"> </input>
+                  </form>
+                </td>
               </tr>
               {% endfor %}
             </table>
+            <div class="container">
+              <form>
+                {{ form }}
+                <input type="submit" name = "Add Course" value = "Add Course"class="btn btn-dark"> </input>
+              </form>
+            </div>
           </div>
-
         </div>
       </div>
   </body>

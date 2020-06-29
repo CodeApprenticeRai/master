@@ -14,6 +14,7 @@ def index(request):
     else:
         return render(request, 'app/intro_page.html')
 
+
 def sign_up(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -21,7 +22,7 @@ def sign_up(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user_obj = form.save()
-            username  =  form.cleaned_data.get('username')
+            username = form.cleaned_data.get('username')
             django_login(request, user_obj)
             return redirect("home")
         else:
@@ -31,6 +32,7 @@ def sign_up(request):
     }
 
     return render(request, 'app/sign_up.html', context)
+
 
 def login(request):
     if request.user.is_authenticated:
@@ -68,7 +70,6 @@ def logout(request):
     return redirect('index')
 
 
-
 def challenge(request, challenge_id):
     if request.method == 'POST':
         # !! does not generalize,
@@ -79,7 +80,7 @@ def challenge(request, challenge_id):
 
         # print(request.POST)
         for form_question in request.POST:
-            if ( form_question == "csrfmiddlewaretoken" ):
+            if (form_question == "csrfmiddlewaretoken"):
                 continue
 
             user_choice_id = request.POST[form_question]
@@ -94,7 +95,7 @@ def challenge(request, challenge_id):
         context = {
             'correct_answer_count': correct_answer_count,
             'form_question_count': form_question_count,
-            'percentage_correct': (correct_answer_count /  form_question_count) * 100
+            'percentage_correct': (correct_answer_count / form_question_count) * 100
         }
 
         return render(request, 'app/challenge_report.html', context)
@@ -108,28 +109,51 @@ def challenge(request, challenge_id):
         }
         return render(request, 'app/challenge.html', context)
 
+
 # !! For now ( until moving to sessions ) : Given an instructor_id,
 # return tablelists of all courses that user is an instructor of
 @login_required
 def home(request):
-    if (not request.user):
+    if not request.user:
         return HttpResponse("The user is not bound to session, debug this.")
 
     # get instructor object
     instructor_obj = request.user
 
-    print(instructor_obj)
+    # add Course
+    if request.method == 'GET':
+        if request.GET.get("Add Course"):
+            temp = request.GET['name']
+            if Course.objects.filter(name=temp).exists():
+                print("Course name already exists...")
+            else:
+                addCourse = Course(name=temp)
+                addI_Role = InstructorRole(associated_user=instructor_obj, associated_course=addCourse)
+                addCourse.save()
+                addI_Role.save()
+
+        if request.GET.get(value="Remove Course"):
+            print(request.GET)
+            Course.objects.filter(pk=Course.id).delete()
 
     # extract associated_courses
-    courses_led_by_instructor = [ role_object.associated_course for role_object in InstructorRole.objects.filter(associated_user=instructor_obj) ]
+    courses_led_by_instructor = [role_object.associated_course for role_object in
+                                 InstructorRole.objects.filter(associated_user=instructor_obj)]
+    # remove Course
+    if request.method == 'POST':
+        print(request.POST)
+        if request.POST.get("Remove Course"):
+            Course.objects.filter(pk=Course.id).delete()
 
     # add courses to context
     context = {
         "instructor": instructor_obj,
-        "courses": courses_led_by_instructor
+        "courses": courses_led_by_instructor,
+        "form": app.forms.AddCourseForm()
     }
 
     return render(request, 'app/home.html', context)
+
 
 # Render all the skills of a specified course
 @login_required
@@ -137,19 +161,33 @@ def course_view(request, course_id):
     course_obj = Course.objects.get(id=course_id)
     skills = Skill.objects.filter(parent_course=course_obj)
 
-    context={
+    if request.GET:
+
+        if request.GET.get("Add Skill"):
+            temp = request.GET['name']
+            if Skill.objects.filter(name=temp, parent_course=course_obj).exists():
+                print("Skill name already exists for this Course...")
+            else:
+                addSkill = Skill(name=temp, parent_course=course_obj)
+                addSkill.save()
+        if request.GET.get("Remove Skill"):
+            print(request.GET)
+
+    context = {
         "course": course_obj,
-        "skills": skills
+        "skills": skills,
+        "form": app.forms.AddSkillForm()
     }
 
     return render(request, 'app/course_view.html', context)
+
 
 @login_required
 def skill_view(request, skill_id):
     skill_obj = Skill.objects.get(id=skill_id)
     challenges = Challenge.objects.filter(parent_skill=skill_obj)
 
-    context={
+    context = {
         "skill": skill_obj,
         "challenges": challenges
     }
