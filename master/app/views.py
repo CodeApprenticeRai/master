@@ -132,20 +132,17 @@ def home(request):
                 addCourse.save()
                 addI_Role.save()
 
-        if request.GET.get(value="Remove Course"):
-            print(request.GET)
-            Course.objects.filter(pk=Course.id).delete()
+        if request.GET.get("Remove Course"):
+            x = request.GET.get("Remove Course")
+            InstructorRole.objects.filter(associated_user=instructor_obj,
+                                          associated_course=Course.objects.get(pk=x)).delete()
+            Course.objects.filter(pk=x).delete()
 
     # extract associated_courses
     courses_led_by_instructor = [role_object.associated_course for role_object in
                                  InstructorRole.objects.filter(associated_user=instructor_obj)]
-    # remove Course
-    if request.method == 'POST':
-        print(request.POST)
-        if request.POST.get("Remove Course"):
-            Course.objects.filter(pk=Course.id).delete()
+    # if request.method == 'POST':
 
-    # add courses to context
     context = {
         "instructor": instructor_obj,
         "courses": courses_led_by_instructor,
@@ -162,7 +159,6 @@ def course_view(request, course_id):
     skills = Skill.objects.filter(parent_course=course_obj)
 
     if request.GET:
-
         if request.GET.get("Add Skill"):
             temp = request.GET['name']
             if Skill.objects.filter(name=temp, parent_course=course_obj).exists():
@@ -170,8 +166,10 @@ def course_view(request, course_id):
             else:
                 addSkill = Skill(name=temp, parent_course=course_obj)
                 addSkill.save()
+
         if request.GET.get("Remove Skill"):
-            print(request.GET)
+            x = request.GET.get("Remove Skill")
+            Skill.objects.filter(pk=x).delete()
 
     context = {
         "course": course_obj,

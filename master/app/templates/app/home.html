@@ -69,7 +69,7 @@
                 <td> <a href="{% url 'course_view' course_id=course.id  %}">{{course.name}} </a> </td>
                 <td>
                   <form action="{% url 'home'  %}" method='GET'>
-                    <input type="submit" name = {{course.id}} value = "Remove Course" class="btn btn-dark"> </input>
+                    <button type = "submit" name = "Remove Course"  value = "{{course.id}}" class="btn btn-dark"> Remove Course </button>
                   </form>
                 </td>
               </tr>

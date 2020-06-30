@@ -71,7 +71,9 @@
                     <a href="{% url 'skill_view' skill_id=skill.id  %}">{{skill.name}} </a>
                   </td>
                   <td>
-                    <input type="submit" value = "Remove Skill" class="btn btn-dark"><a  ></a></input>
+                    <form action="{% url 'course_view' course_id=course.id %}" method='GET'>
+                      <button type = "submit" name = "Remove Skill"  value = "{{skill.id}}" class="btn btn-dark"> Remove Skill </button>
+                    </form>
                   </td>
                 </tr>
                 {% endfor %}
