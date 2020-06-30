@@ -54,8 +54,15 @@
   <body>
     <div id='site-wrapper'>
       <div id="site-header" class=""><div class="container master-symbol">Master</div></div>
-        <div id=""  class="container page-content">
-
+        <div id=""  class="container page-content"> <!-- Logout Button. Confused because unsure how to look at home page since I can't log in. -->
+          <div class="card-body right hover-card">
+            <form method="POST">
+              {% csrf_token %}
+              {{form}}
+              <button type="submit">Logout</button>
+              <p><a href="{% url 'logout' %}">Logout</a></p>
+            </form>
+          </div>
           <div class="table-section" >
             <p>Courses</p>
             <table class="table table-bordered common-text table-sm">
