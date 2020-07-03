@@ -127,15 +127,16 @@
           <table class="question-table table table-bordered common-text table-sm">
             <thead class="thead-dark site-table-header">
             <tr>
-              <th scope="col">Question</th>
+              <th scope="col" >Question</th>
+              <th scope="col"></th>
               <th scope="col"></th>
             </tr>
             </thead>
 
             {% for question in questions  %}
             <tr>
-              <td><a href="">{{question.text}}</a></td>
-              <td><a href="">Edit Question</a></td>
+              <td>{{question.text}}</td>
+              <td><a href="{% url 'delete_question' question_id=question.id %}">Delete Question</a></td>
             </tr>
             {% endfor %}
           </table>
@@ -143,7 +144,7 @@
             <button class="btn btn-primary btn-sm"><a href="{% url 'edit_question' challenge_id=challenge_name_form.instance.id %}">Create New Question</a></button>
           </div>
           <div class="row d-flex flex-row-reverse" style="margin-top:0.3rem;">
-            <button class="btn btn-primary btn-sm"><a href="{% url 'challenge' challenge_id=challenge_name_form.instance.id %}">Preview Challenge</a></button>
+            <button class="btn btn-primary btn-sm"><a href="{% url 'preview_challenge' challenge_id=challenge_name_form.instance.id %}">Preview Challenge</a></button>
           </div>
           {% endif %}
       </div>

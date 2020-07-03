@@ -23,7 +23,7 @@ def sign_up(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user_obj = form.save()
-            username  =  form.cleaned_data.get('username')
+            username  = form.cleaned_data.get('username')
             django_login(request, user_obj)
             return redirect("index")
         else:
@@ -128,6 +128,12 @@ def challenge(request, challenge_id):
             "challenge": challenge_obj,
             "form": app.forms.ChallengePresentationalForm(challenge_id)
         }
+
+        preview = "preview" in request.path
+        
+        if preview:
+            context["preview"] = True
+
         return render(request, 'app/challenge.html', context)
 
 
@@ -175,16 +181,18 @@ def edit_question(request, challenge_id):
         # parse question title and quesiton choices, validate then save, redirect to another empty form
         if request.POST.get('add-another', False):
             question_title = request.POST.get('text', [None])
-            question_choices = request.POST.get('form-0-text', [])
-            correct_answer = request.POST.get('correct-answer', '')
+            question_choices = request.POST.getlist('form-0-text')
+            question_correct_answer = request.POST.get('correct-answer', '')
 
             if question_title and question_choices: #if they are not null, not empty
                 quesion_obj = Question(parent_challenge=associated_challenge_obj, text=question_title)
                 quesion_obj.save()
 
                 #confirm question obj
-                for quesiton_choice_text in question_choices:
-                    question_choice_obj = QuestionChoice(parent_question=quesion_obj, text=quesiton_choice_text, correct_answer=quesiton_choice_text==correct_answer)
+                for question_choice_text in question_choices:
+                    print(question_choice_text)
+                    is_question_answer = question_choice_text == question_correct_answer
+                    question_choice_obj = QuestionChoice(parent_question=quesion_obj, text=question_choice_text, correct_answer=is_question_answer)
                     question_choice_obj.save()
 
             messages.success(request, "Question successfully created and added to challenge")
@@ -195,3 +203,15 @@ def edit_question(request, challenge_id):
         'challenge': associated_challenge_obj
     }
     return render(request, 'app/edit_question.html', context)
+
+@login_required
+def delete_question(request, question_id):
+    query_result_set = Question.objects.filter(id=question_id)
+
+    if ( query_result_set ):
+        parent_challenge_obj = query_result_set[0].parent_challenge
+        query_result_set[0].delete()
+        return redirect('edit_challenge', challenge_id=parent_challenge_obj.id)
+
+    else:
+        return redirect('index')
