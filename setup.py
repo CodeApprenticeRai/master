@@ -11,6 +11,6 @@ setup(
     description="A web application for facilitating mastery of a defined skillset",
     author="Tare Gaskin",
     author_email="taregaskin@ufl.edu",
-    packages=['master'],
+    packages=['master', 'app'],
     install_requires=reqs,
 )

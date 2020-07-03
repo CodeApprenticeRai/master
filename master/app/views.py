@@ -6,13 +6,15 @@ import app.forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import logout as django_logout, authenticate, login as django_login
+from django.contrib import messages
 
 
 def index(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('view_challenges')
     else:
         return render(request, 'app/intro_page.html')
+
 
 def sign_up(request):
     if request.user.is_authenticated:
@@ -21,16 +23,23 @@ def sign_up(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user_obj = form.save()
-            username  =  form.cleaned_data.get('username')
+            username  = form.cleaned_data.get('username')
             django_login(request, user_obj)
-            return redirect("home")
+            return redirect("index")
         else:
-            return HttpResponse("Something silly happened.")
+            return HttpResponse("Sign Up Failed.")
+
+    sign_up_form = UserCreationForm()
+
+    for fieldname in ['username', 'password1', 'password2']:
+        sign_up_form.fields[fieldname].help_text = None
+
     context = {
-        "form": UserCreationForm
+        "form": sign_up_form
     }
 
     return render(request, 'app/sign_up.html', context)
+
 
 def login(request):
     if request.user.is_authenticated:
@@ -45,7 +54,7 @@ def login(request):
             if user is not None:
                 django_login(request, user)
                 # messages.info(request, f"You are now logged in as {username}")
-                return redirect('home')
+                return redirect('index')
             else:
                 pass
                 # messages.error(request, "Invalid username or password.")
@@ -67,9 +76,23 @@ def logout(request):
 
     return redirect('index')
 
+@login_required
+def view_challenges(request):
+    ID_OF_DEFAULT_SKILL = 2 # !!
+    skill_obj = Skill.objects.get(id=ID_OF_DEFAULT_SKILL) # !!
+    print(skill_obj)
+    challenges = Challenge.objects.filter(parent_skill=skill_obj)
+
+    context={
+    "skill": skill_obj,
+    "challenges": challenges
+    }
+
+    return render(request, 'app/challenge_dashboard.html', context)
 
 
 def challenge(request, challenge_id):
+    challenge_obj = Challenge.objects.get(pk=challenge_id)
     if request.method == 'POST':
         # !! does not generalize,
         # assumes that all keys in request.POST
@@ -92,66 +115,104 @@ def challenge(request, challenge_id):
             form_question_count += 1
 
         context = {
+            'challenge': challenge_obj,
             'correct_answer_count': correct_answer_count,
             'form_question_count': form_question_count,
-            'percentage_correct': (correct_answer_count /  form_question_count) * 100
+            'percentage_correct': round( (correct_answer_count /  form_question_count) * 100, 2)
         }
 
         return render(request, 'app/challenge_report.html', context)
 
     else:
-        challenge_obj = Challenge.objects.get(pk=challenge_id)
 
         context = {
             "challenge": challenge_obj,
-            "form": app.forms.ChallengeForm(challenge_id)
+            "form": app.forms.ChallengePresentationalForm(challenge_id)
         }
+
+        preview = "preview" in request.path
+
+        if preview:
+            context["preview"] = True
+
         return render(request, 'app/challenge.html', context)
 
-# !! For now ( until moving to sessions ) : Given an instructor_id,
-# return tablelists of all courses that user is an instructor of
+
 @login_required
-def home(request):
-    if (not request.user):
-        return HttpResponse("The user is not bound to session, debug this.")
+def create_new_challenge(request):
+    next_unclaimed_challenge_id = Challenge.objects.latest('id').id + 1
+    return redirect('edit_challenge', challenge_id=next_unclaimed_challenge_id)
 
-    # get instructor object
-    instructor_obj = request.user
 
-    print(instructor_obj)
+# Creation and Editing of Challenges
+@login_required
+def edit_challenge(request, challenge_id):
+    referenced_challenge_exists = len(Challenge.objects.filter(id=challenge_id)) > 0
 
-    # extract associated_courses
-    courses_led_by_instructor = [ role_object.associated_course for role_object in InstructorRole.objects.filter(associated_user=instructor_obj) ]
+    challenge_obj = Challenge.objects.get(id=challenge_id) if referenced_challenge_exists else Challenge(id=challenge_id)
 
-    # add courses to context
+    if request.method == "POST": # try to create or update
+        if request.POST.get('update-challenge-name', False):
+            challenge_obj.name = request.POST['name']
+            challenge_obj.save()
+            referenced_challenge_exists = len(Challenge.objects.filter(id=challenge_id)) > 0
+            messages.success(request, "Challenge name successfully updated to '{}'".format(challenge_obj.name))
+        if request.POST.get('delete-challenge', False):
+            challenge_obj.delete()
+            return redirect('index')
+
+    challenge_question_set = Question.objects.filter(parent_challenge=challenge_obj)
+
+    form_initial_values = {"name": challenge_obj.name } if referenced_challenge_exists else {}
+    challenge_form = app.forms.ChallengeForm(instance=challenge_obj, initial=form_initial_values)
+    challenge_form.fields['name'].label = "Challenge Name"
     context = {
-        "instructor": instructor_obj,
-        "courses": courses_led_by_instructor
+        'challenge_name_form': challenge_form,
+        'challenge_button_action_label': 'Update Challenge Name' if referenced_challenge_exists else 'Create New Challenge',
+        "questions":  challenge_question_set,
+        "referenced_challenge_exists": referenced_challenge_exists
     }
+    return render(request, 'app/edit_challenge.html', context)
 
-    return render(request, 'app/home.html', context)
-
-# Render all the skills of a specified course
-@login_required
-def course_view(request, course_id):
-    course_obj = Course.objects.get(id=course_id)
-    skills = Skill.objects.filter(parent_course=course_obj)
-
-    context={
-        "course": course_obj,
-        "skills": skills
-    }
-
-    return render(request, 'app/course_view.html', context)
 
 @login_required
-def skill_view(request, skill_id):
-    skill_obj = Skill.objects.get(id=skill_id)
-    challenges = Challenge.objects.filter(parent_skill=skill_obj)
+def edit_question(request, challenge_id):
+    associated_challenge_obj = Challenge.objects.get(id=challenge_id)
+    if request.method == 'POST':
+        # parse question title and quesiton choices, validate then save, redirect to another empty form
+        if request.POST.get('add-another', False):
+            question_title = request.POST.get('text', [None])
+            question_choices = request.POST.getlist('form-0-text')
+            question_correct_answer = request.POST.get('correct-answer', '')
 
-    context={
-        "skill": skill_obj,
-        "challenges": challenges
+            if question_title and question_choices: #if they are not null, not empty
+                quesion_obj = Question(parent_challenge=associated_challenge_obj, text=question_title)
+                quesion_obj.save()
+
+                #confirm question obj
+                for question_choice_text in question_choices:
+                    print(question_choice_text)
+                    is_question_answer = question_choice_text == question_correct_answer
+                    question_choice_obj = QuestionChoice(parent_question=quesion_obj, text=question_choice_text, correct_answer=is_question_answer)
+                    question_choice_obj.save()
+
+            messages.success(request, "Question successfully created and added to challenge")
+
+    context = {
+        'question_title_form': app.forms.QuestionModelForm(),
+        'question_choice_formset': app.forms.QuestionChoiceFormset(request.GET or None),
+        'challenge': associated_challenge_obj
     }
+    return render(request, 'app/edit_question.html', context)
 
-    return render(request, 'app/skill_view.html', context)
+@login_required
+def delete_question(request, question_id):
+    query_result_set = Question.objects.filter(id=question_id)
+
+    if ( query_result_set ):
+        parent_challenge_obj = query_result_set[0].parent_challenge
+        query_result_set[0].delete()
+        return redirect('edit_challenge', challenge_id=parent_challenge_obj.id)
+
+    else:
+        return redirect('index')

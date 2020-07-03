@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Master: {{ skill.parent_course.name }} {{ skill.name }}</title>
+    <title>Master: Challenges</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS only -->
@@ -49,33 +49,83 @@
       border-top: 1px solid;
       border-radius: 1px;
     }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      background-color: transparent;
+    }
+
+    #logout-button {
+      color: #6c757d;
+    }
     </style>
 
   </head>
   <body>
       <div id='site-wrapper'>
-        <div id="site-header" class=""><div class="container master-symbol">Master</div></div>
+        <div id="site-header" class="">
+          <div class="container">
+            <div class="row">
+              <a class="master-symbol" href="{% url 'index' %}">Master</a>
+              <a id="logout-button" class="align-self-end float-right text-right justify-content-end ml-auto" href="{% url 'logout' %}">Logout</a>
+            </div>
+          </div>
+        </div>
           <div id=""  class="container page-content">
-
             <div class="table-section" >
-              <p>{{ skill.parent_course.name }} {{ skill.name }} Challenges</p>
+              <p>Challenge Designer</p>
               <table class="table table-bordered common-text table-sm">
                 <thead class="thead-dark site-table-header">
                 <tr>
                   <th scope="col">Challenge Name</th>
                   <th scope="col"></th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
                 </tr>
                 </thead>
                 {% for challenge in challenges  %}
                 <tr>
-                  <td><a href="">Challenge {{challenge.name}}</a></td>
+                  <td><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">{{challenge.name}} Challenge</a></td>
+                  <td><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">Edit</a></td>
                   <td><a href="{% url 'challenge' challenge_id=challenge.id %}">Preview Challenge</a></td>
+                  <td><button onclick="copy_challenge_link_to_clipboard('{% url 'challenge' challenge_id=challenge.id %}')") >Share Challenge Link</button></td>
                 </tr>
                 {% endfor %}
               </table>
+              <div class="d-flex flex-row-reverse"><button class="btn btn-secondary btn-sm"><a href="{% url 'create_new_challenge' %}">Create New Challenge</a></button></div>
             </div>
 
           </div>
         </div>
   </body>
+  <script>
+  function copy_challenge_link_to_clipboard(challenge_link) {
+    base_url = "http://127.0.0.1:8000";
+    const support_element = document.createElement('textarea');
+    support_element.value = base_url + challenge_link;
+
+    support_element.setAttribute('readonly', '');
+    support_element.style.position = 'absolute';
+    support_element.style.left = '-9999px';
+
+    document.body.appendChild(support_element);
+    support_element.select();
+    document.execCommand('copy');
+    document.body.removeChild(support_element)
+
+    alert("Copied Challenge Link to Clipboard!");
+  }
+  </script>
 </html>
+
+
+<!-- <div class="container">
+  {% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+</div> -->

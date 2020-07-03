@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+ID_OF_DEFAULT_SKILL =  2 # !!
+
 class Course(models.Model):
     name = models.CharField(max_length=255)
 
@@ -23,7 +25,7 @@ class Skill(models.Model):
 
 class Challenge(models.Model):
     name = models.CharField(max_length=255)
-    parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, default=ID_OF_DEFAULT_SKILL)
 
     def __str__(self):
        return self.name
@@ -36,7 +38,7 @@ class Question(models.Model):
        return self.text
 
 class QuestionChoice(models.Model):
-    parent_question = models.ForeignKey(Question, on_delete=models.CASCADE )
+    parent_question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.TextField()
     correct_answer = models.BooleanField()
 
