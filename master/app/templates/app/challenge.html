@@ -28,7 +28,7 @@
       <form action="{% url 'challenge' challenge_id=challenge.id %}" method="post">
         {% csrf_token %}
         {{ form }}
-        <input type="submit" value="Submit">
+        {% if not preview %}<input type="submit" value="Submit">{% endif %}
       </form>
       {% if preview %}
       <div class="row d-flex flex-row-reverse" style="margin-top:0.3rem;">

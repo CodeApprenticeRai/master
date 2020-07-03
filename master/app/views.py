@@ -92,6 +92,7 @@ def view_challenges(request):
 
 
 def challenge(request, challenge_id):
+    challenge_obj = Challenge.objects.get(pk=challenge_id)
     if request.method == 'POST':
         # !! does not generalize,
         # assumes that all keys in request.POST
@@ -114,15 +115,15 @@ def challenge(request, challenge_id):
             form_question_count += 1
 
         context = {
+            'challenge': challenge_obj,
             'correct_answer_count': correct_answer_count,
             'form_question_count': form_question_count,
-            'percentage_correct': (correct_answer_count /  form_question_count) * 100
+            'percentage_correct': round( (correct_answer_count /  form_question_count) * 100, 2)
         }
 
         return render(request, 'app/challenge_report.html', context)
 
     else:
-        challenge_obj = Challenge.objects.get(pk=challenge_id)
 
         context = {
             "challenge": challenge_obj,
@@ -130,7 +131,7 @@ def challenge(request, challenge_id):
         }
 
         preview = "preview" in request.path
-        
+
         if preview:
             context["preview"] = True
 

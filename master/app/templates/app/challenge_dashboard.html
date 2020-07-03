@@ -81,6 +81,7 @@
                   <th scope="col">Challenge Name</th>
                   <th scope="col"></th>
                   <th scope="col"></th>
+                  <th scope="col"></th>
                 </tr>
                 </thead>
                 {% for challenge in challenges  %}
@@ -88,6 +89,7 @@
                   <td><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">{{challenge.name}} Challenge</a></td>
                   <td><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">Edit</a></td>
                   <td><a href="{% url 'challenge' challenge_id=challenge.id %}">Preview Challenge</a></td>
+                  <td><button onclick="copy_challenge_link_to_clipboard('{% url 'challenge' challenge_id=challenge.id %}')") >Share Challenge Link</button></td>
                 </tr>
                 {% endfor %}
               </table>
@@ -97,6 +99,24 @@
           </div>
         </div>
   </body>
+  <script>
+  function copy_challenge_link_to_clipboard(challenge_link) {
+    base_url = "http://127.0.0.1:8000";
+    const support_element = document.createElement('textarea');
+    support_element.value = base_url + challenge_link;
+
+    support_element.setAttribute('readonly', '');
+    support_element.style.position = 'absolute';
+    support_element.style.left = '-9999px';
+
+    document.body.appendChild(support_element);
+    support_element.select();
+    document.execCommand('copy');
+    document.body.removeChild(support_element)
+
+    alert("Copied Challenge Link to Clipboard!");
+  }
+  </script>
 </html>
 
 
