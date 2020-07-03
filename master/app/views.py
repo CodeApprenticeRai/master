@@ -25,9 +25,9 @@ def sign_up(request):
             user_obj = form.save()
             username  =  form.cleaned_data.get('username')
             django_login(request, user_obj)
-            return redirect("home")
+            return redirect("index")
         else:
-            return HttpResponse("Something silly happened.")
+            return HttpResponse("Sign Up Failed.")
 
     sign_up_form = UserCreationForm()
 
