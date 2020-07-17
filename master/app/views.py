@@ -31,8 +31,13 @@ def sign_up(request):
 
     sign_up_form = UserCreationForm()
 
-    # for fieldname in ['username', 'password1', 'password2']:
-    #     sign_up_form.fields[fieldname].help_text = None
+    sign_up_form.fields['username'].help_text = '<br/> You can use letter, numbers, & characters (@/./+/-/_ ) <br/> '
+    sign_up_form.fields['password1'].help_text = '<br/> Use 8 or more characters with a mix of letters, numbers, ' \
+                                                 'and symbols <br/> <br/> Do NOT use any identifying information <br/> '
+    sign_up_form.fields['password2'].help_text = None
+
+    #for fieldname in ['username', 'password1', 'password2']:
+       # sign_up_form.fields[fieldname].help_text = None
 
     context = {
         "form": sign_up_form
