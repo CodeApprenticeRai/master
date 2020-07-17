@@ -31,8 +31,8 @@ def sign_up(request):
 
     sign_up_form = UserCreationForm()
 
-    for fieldname in ['username', 'password1', 'password2']:
-        sign_up_form.fields[fieldname].help_text = None
+    # for fieldname in ['username', 'password1', 'password2']:
+    #     sign_up_form.fields[fieldname].help_text = None
 
     context = {
         "form": sign_up_form

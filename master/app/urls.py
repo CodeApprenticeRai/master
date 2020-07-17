@@ -12,6 +12,6 @@ urlpatterns = [
     path('home/challenges', views.view_challenges, name="view_challenges"),
     path('challenge/', views.create_new_challenge, name="create_new_challenge"),
     path('challenge/<int:challenge_id>', views.edit_challenge, name="edit_challenge"),
-    path('home/challenge/edit_question/<int:question_id>', views.delete_question, name="delete_question"), # !! updating existing question, currently just for deleting question
+    path('home/challenge/edit_question/delete/<int:question_id>', views.delete_question, name="delete_question"), # !! updating existing question, currently just for deleting question
     path('home/challenge/edit_question/<int:challenge_id>', views.edit_question, name="edit_question") #creating a new question
 ]
