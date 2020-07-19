@@ -95,7 +95,7 @@ def view_challenges(request):
 
     return render(request, 'app/challenge_dashboard.html', context)
 
-
+@login_required
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
     if request.method == 'POST':
@@ -221,3 +221,8 @@ def delete_question(request, question_id):
 
     else:
         return redirect('index')
+
+@login_required
+def view_challenge_analytics(request, challenge_id):
+    context = {}
+    return render(request, 'app/challenge_analytics.html', context)
