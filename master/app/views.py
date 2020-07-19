@@ -48,7 +48,7 @@ def sign_up(request):
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('view_challenges')
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -121,21 +121,24 @@ def challenge_password(request, challenge_id):
 
     return render(request, 'app/password_challenge.html', context)
 
+def please_login(request):
+    if request.method == "POST":
+        if request.POST.get('Login | Sign Up'):
+            return redirect('login')
+    return render(request, 'app/please_login.html')
+
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
     student = request.user
-    print("obv")
     # Authentication
     if request.user.is_authenticated:
-        print("auth")
         if challenge_obj.password != '0000':
-            print("ouch")
             # Check Password & if User has entered before
             if not PassEntry.objects.filter(associated_challenge=challenge_obj.id,
                                                 associated_user=student.id).exists():
                 return redirect('challenge_password', challenge_id=challenge_obj.id)
     else:
-        return redirect('login/')
+        return redirect('please_login')
 
     if request.method == 'POST':
         # !! does not generalize,
