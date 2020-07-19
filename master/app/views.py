@@ -3,11 +3,11 @@ from django.shortcuts import render, redirect
 from .models import *
 import app.forms
 
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import logout as django_logout, authenticate, login as django_login
 from django.contrib import messages
-
 
 def index(request):
     if request.user.is_authenticated:
@@ -107,17 +107,22 @@ def challenge(request, challenge_id):
 
         # print(request.POST)
         for form_question in request.POST:
-            if ( form_question == "csrfmiddlewaretoken" ):
+            if form_question == "csrfmiddlewaretoken":
                 continue
 
             user_choice_id = request.POST[form_question]
             choice_obj = QuestionChoice.objects.get(id=user_choice_id)
 
             print([choice_obj.id, choice_obj.text, choice_obj.correct_answer])
-            if (choice_obj.correct_answer):
+            if choice_obj.correct_answer:
                 correct_answer_count += 1
 
             form_question_count += 1
+
+        # generate scorecard
+        chal = Challenge.objects.get(id=challenge_id)
+        perc = ((correct_answer_count / form_question_count) * 100)
+        grade = Scorecard(chal, request.user.id, perc)
 
         context = {
             'challenge': challenge_obj,
@@ -141,7 +146,6 @@ def challenge(request, challenge_id):
             context["preview"] = True
 
         return render(request, 'app/challenge.html', context)
-
 
 @login_required
 def create_new_challenge(request):
@@ -180,6 +184,7 @@ def edit_challenge(request, challenge_id):
     return render(request, 'app/edit_challenge.html', context)
 
 
+
 @login_required
 def edit_question(request, challenge_id):
     associated_challenge_obj = Challenge.objects.get(id=challenge_id)
@@ -193,6 +198,7 @@ def edit_question(request, challenge_id):
             if question_title and question_choices: #if they are not null, not empty
                 quesion_obj = Question(parent_challenge=associated_challenge_obj, text=question_title)
                 quesion_obj.save()
+
 
                 #confirm question obj
                 for question_choice_text in question_choices:
