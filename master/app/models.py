@@ -38,7 +38,7 @@ class Question(models.Model):
     def __str__(self):
        return self.text
 
-class PassEntry(models.Model):
+class CandidateRole(models.Model):
     associated_challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
     associated_user = models.ForeignKey(User, on_delete=models.PROTECT)
 
