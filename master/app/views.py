@@ -23,6 +23,11 @@ def sign_up(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user_obj = form.save()
+
+            if ("instructor" in request.path):
+                #Give user base instructor role
+                InstructorRole.objects.create(associated_instructor=user_obj).save()
+
             username  = form.cleaned_data.get('username')
             django_login(request, user_obj)
             return redirect("index")
@@ -83,14 +88,20 @@ def logout(request):
 
 @login_required
 def view_challenges(request):
-    ID_OF_DEFAULT_SKILL = 2 # !!
-    skill_obj = Skill.objects.get(id=ID_OF_DEFAULT_SKILL) # !!
-    print(skill_obj)
-    challenges = Challenge.objects.filter(parent_skill=skill_obj)
+    user_managed_challenges = [ instructor_role_obj.associated_challenge
+                for instructor_role_obj in
+                InstructorRole.objects.filter(associated_instructor=request.user)
+    ]
+
+    is_instructor = True if user_managed_challenges else False
+    challenges = []
+
+    if is_instructor:
+        challenges = [challenge for challenge in user_managed_challenges if (challenge != None)]
 
     context={
-    "skill": skill_obj,
-    "challenges": challenges
+    "challenges": challenges,
+    "is_instructor": is_instructor
     }
 
     return render(request, 'app/challenge_dashboard.html', context)
@@ -160,6 +171,7 @@ def edit_challenge(request, challenge_id):
         if request.POST.get('update-challenge-name', False):
             challenge_obj.name = request.POST['name']
             challenge_obj.save()
+            InstructorRole.objects.create(associated_instructor=request.user, associated_challenge=challenge_obj).save()
             referenced_challenge_exists = len(Challenge.objects.filter(id=challenge_id)) > 0
             messages.success(request, "Challenge name successfully updated to '{}'".format(challenge_obj.name))
         if request.POST.get('delete-challenge', False):
