@@ -1,0 +1,185 @@
+<html>
+  <head>
+    <title>Master: Challenges</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+    <!-- Custom Fonts-->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&family=Open+Sans&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+
+    <style>
+
+
+    .master-symbol {
+      font-family: 'Nunito';
+    }
+
+    body {
+      background-color: #e9ecef;
+      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 0.7rem;
+      height: 100%;
+      width: 100%;
+    }
+
+    #site-header {
+      font-size: 1rem;
+      padding-top: 1.7rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid;
+      border-radius: 1px;
+    }
+
+    .table-section {
+      padding-top: 2rem;
+    }
+
+    .common-text {
+      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 0.7rem;
+    }
+    .site-table-header {
+      border-top: 1px solid;
+      border-radius: 1px;
+    }
+
+
+    #question-form-label {
+      font-size: 4rem;
+    }
+
+    #question_title {
+      margin-top: 5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    textarea {
+      height: 2.5rem;
+      font-size: 1.2rem;
+      width: -webkit-fill-available;
+      padding: 0.3rem;
+    }
+
+    label {
+      font-size: 1.2rem;
+      margin-right: 1.2rem;
+    }
+
+    .form-row {
+      margin-bottom: 2rem;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      background-color: transparent;
+    }
+
+    #logout-button {
+      color: #6c757d;
+    }
+    </style>
+
+  </head>
+  <body>
+      <div id='site-wrapper'>
+        <div id="site-header" class="">
+          <div class="container">
+            <div class="row">
+              <a class="master-symbol" href="{% url 'index' %}">Master</a>
+              <a id="logout-button" class="align-self-end float-right text-right justify-content-end ml-auto" href="{% url 'logout' %}">Logout</a>
+            </div>
+          </div>
+        </div>
+      <div id=""  class="container page-content">
+        <form class="form-horizontal" method="POST" action="">
+          {% csrf_token %}
+          <div id="question_title">
+            {{ question_title_form }}
+          </div>
+          {{ question_choice_formset.management_form }}
+          {% for question_choice_form in question_choice_formset %}
+          <div class="row form-row spacer">
+              <div class="col-2">
+                  <label>{{question_choice_form.text.label}}</label>
+              </div>
+              <div class="col-4">
+                  <div class="input-group">
+                      {{question_choice_form.text}}
+                      <div class="input-group-append">
+                          <button class="btn btn-success add-form-row">+</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          {% endfor %}
+          <label for="correct-answer">Correct Answer:</label>
+          <input type="text" name="correct-answer">
+          <div class="d-flex flex-row-reverse"><button type="submit" name="add-another" value="True" class="btn btn-primary">Create Question and Add Another</button></div>
+        </form>
+        <div class="d-flex flex-row-reverse"><button class="btn btn-primary"><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">Back to Challenge Designer</a></button></div>
+      </div>
+    </div>
+  </body>
+  <script type='text/javascript'>
+  function updateElementIndex(el, prefix, ndx) {
+      var id_regex = new RegExp('(' + prefix + '-\\d+)');
+      var replacement = prefix + '-' + ndx;
+      if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+      if (el.id) el.id = el.id.replace(id_regex, replacement);
+      if (el.name) el.name = el.name.replace(id_regex, replacement);
+  }
+  function cloneMore(selector, prefix) {
+      var newElement = $(selector).clone(true);
+      var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+      newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function() {
+      });
+      newElement.find('label').each(function() {
+          var forValue = $(this).attr('for');
+          if (forValue) {
+            forValue = forValue.replace('-' + (total-1) + '-', '-' + total + '-');
+            $(this).attr({'for': forValue});
+          }
+      });
+      total++;
+      $('#id_' + prefix + '-TOTAL_FORMS').val(total);
+      $(selector).after(newElement);
+      var conditionRow = $('.form-row:not(:last)');
+      conditionRow.find('.btn.add-form-row')
+      .removeClass('btn-success').addClass('btn-danger')
+      .removeClass('add-form-row').addClass('remove-form-row')
+      .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
+      return false;
+  }
+  function deleteForm(prefix, btn) {
+      var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+      if (total > 1){
+          btn.closest('.form-row').remove();
+          var forms = $('.form-row');
+          $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+          for (var i=0, formCount=forms.length; i<formCount; i++) {
+              $(forms.get(i)).find(':input').each(function() {
+                  updateElementIndex(this, prefix, i);
+              });
+          }
+      }
+      return false;
+  }
+  $(document).on('click', '.add-form-row', function(e){
+      e.preventDefault();
+      cloneMore('.form-row:last', 'form');
+      return false;
+  });
+  $(document).on('click', '.remove-form-row', function(e){
+      e.preventDefault();
+      deleteForm('form', $(this));
+      return false;
+  });
+  </script>

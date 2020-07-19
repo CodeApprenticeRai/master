@@ -1,15 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import User
 
+ID_OF_DEFAULT_SKILL =  2 # !!
 
-class User(models.Model):
-    name = models.CharField(max_length=200)
-
-    # username
-    # email
-    # etc
-
-    def __str__(self):
-        return self.name
 
 
 class Course(models.Model):
@@ -18,15 +11,7 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
-
-class InstructorRole(models.Model):
-    associated_user = models.ForeignKey(User, on_delete=models.PROTECT)
-    associated_course = models.ForeignKey(Course, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return str(self.associated_user.name)
-
-
+      
 class Skill(models.Model):
     name = models.CharField(max_length=255)
     parent_course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -37,11 +22,24 @@ class Skill(models.Model):
 
 class Challenge(models.Model):
     name = models.CharField(max_length=255)
-    parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, default=ID_OF_DEFAULT_SKILL)
 
     def __str__(self):
         return self.name
 
+
+class InstructorRole(models.Model):
+   associated_instructor = models.ForeignKey(User, on_delete=models.PROTECT)
+   associated_challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
+
+   def __str__(self):
+       return str(self.associated_user.username)
+
+   def is_instructor_of_challenge(self, user_id, challenge_id):
+       if self.objects.filter(associated_instructor=user_id, associated_challenge=user_id):
+           return True
+       else:
+           return False
 
 class Question(models.Model):
     parent_challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)

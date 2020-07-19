@@ -4,8 +4,15 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('challenge/<int:challenge_id>/', views.challenge, name="challenge"),
-    path('course/<int:course_id>', views.instructor_view_course_skills, name="instructor_view_course_skills"), # !! variable names should also be changed
-    path('courses/<int:instructor_id>', views.instructor_view_courses, name="instructor_view_courses"), # !! needs to be changed, use sesisons
-    path('course/skill/challenges/<int:skill_id>', views.instructor_view_skill_challenges, name="instructor_view_skill_challenges" ) # !! required changes related to above notes
+    path('sign_up/', views.sign_up, name="sign_up"),
+    path('login/', views.login, name="login"),
+    path('logout/', views.logout, name="logout"),
+    path('home/course/skill/challenge/<int:challenge_id>/', views.challenge, name="challenge"),
+    path(r'home/course/skill/challenge/preview/<int:challenge_id>', views.challenge, name="preview_challenge"),
+    path('home/challenges', views.view_challenges, name="view_challenges"),
+    path('challenge/', views.create_new_challenge, name="create_new_challenge"),
+    path('challenge/<int:challenge_id>', views.edit_challenge, name="edit_challenge"),
+    path('challenge/analytics/<int:challenge_id>', views.view_challenge_analytics, name="view_challenge_analytics"),
+    path('home/challenge/edit_question/delete/<int:question_id>', views.delete_question, name="delete_question"), # !! updating existing question, currently just for deleting question
+    path('home/challenge/edit_question/<int:challenge_id>', views.edit_question, name="edit_question") #creating a new question
 ]

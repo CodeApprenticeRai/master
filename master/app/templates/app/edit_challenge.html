@@ -1,0 +1,153 @@
+<html>
+  <head>
+    <title>Master: Challenges</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+    <!-- Custom Fonts-->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600&family=Open+Sans&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+
+    <style>
+    .master-symbol {
+      font-family: 'Nunito';
+    }
+
+    body {
+      background-color: #e9ecef;
+      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 0.7rem;
+      height: 100%;
+      width: 100%;
+    }
+
+    #site-header {
+      font-size: 1rem;
+      padding-top: 1.7rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid;
+      border-radius: 1px;
+    }
+
+    .table-section {
+      padding-top: 2rem;
+    }
+
+    .common-text {
+      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 0.7rem;
+    }
+    .site-table-header {
+      border-top: 1px solid;
+      border-radius: 1px;
+    }
+
+
+    #question-form-label {
+      font-size: 4rem;
+    }
+
+    #question_title {
+      margin-top: 5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    textarea {
+      height: 2.5rem;
+      font-size: 1.2rem;
+      width: -webkit-fill-available;
+      padding: 0.3rem;
+    }
+
+    label {
+      font-size: 1.2rem;
+      margin-right: 1.2rem;
+    }
+
+    .form-row {
+      margin-bottom: 2rem;
+    }
+
+    .header-margin {
+      margin-top: 1rem;
+    }
+
+    #id_name {
+      width: 20rem;
+    }
+
+    .question-table {
+      margin-top: 2rem;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      background-color: transparent;
+    }
+
+    #logout-button {
+      color: #6c757d;
+    }
+    </style>
+
+  </head>
+  <body>
+      <div id='site-wrapper'>
+        <div id="site-header" class="">
+          <div class="container">
+            <div class="row">
+              <a class="master-symbol" href="{% url 'index' %}">Master</a>
+              <a id="logout-button" class="align-self-end float-right text-right justify-content-end ml-auto" href="{% url 'logout' %}">Logout</a>
+            </div>
+          </div>
+        </div>
+      <div id=""  class="container page-content">
+          <h1 class="header-margin">Challenge Editor</h1>
+          <br>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col">{{challenge_name_form}}</div>
+            <div class="col-auto"><button type="submit" name="update-challenge-name" value="True" class="btn btn-primary btn-sm">{{challenge_button_action_label}}</button></div>
+          </div>
+          {% if referenced_challenge_exists %}
+          <div>
+            <div class="text-right"><button type="submit" name="delete-challenge" value="True" class="btn btn-danger btn-sm">Delete Challenge</button></div>
+          </div>
+          {% endif %}
+        </form>
+          {% if referenced_challenge_exists %}
+          <table class="question-table table table-bordered common-text table-sm">
+            <thead class="thead-dark site-table-header">
+            <tr>
+              <th scope="col" >Question</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
+            </thead>
+
+            {% for question in questions  %}
+            <tr>
+              <td>{{question.text}}</td>
+              <td><a href="{% url 'delete_question' question_id=question.id %}">Delete Question</a></td>
+            </tr>
+            {% endfor %}
+          </table>
+          <div class="row d-flex flex-row-reverse" >
+            <button class="btn btn-primary btn-sm"><a href="{% url 'edit_question' challenge_id=challenge_name_form.instance.id %}">Create New Question</a></button>
+          </div>
+          <div class="row d-flex flex-row-reverse" style="margin-top:0.3rem;">
+            <button class="btn btn-primary btn-sm"><a href="{% url 'preview_challenge' challenge_id=challenge_name_form.instance.id %}">Preview Challenge</a></button>
+          </div>
+          {% endif %}
+      </div>
+    </div>
+  </body>
+</html>

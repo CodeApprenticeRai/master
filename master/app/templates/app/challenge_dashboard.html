@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Master: {{ course.name }}</title>
+    <title>Master: Challenges</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS only -->
@@ -37,23 +37,6 @@
       border-radius: 1px;
     }
 
-    .center {
-      margin: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-right: -50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .center-along-x-dimension {
-      margin: 0;
-      position: absolute;
-      left: 50%;
-      margin-right: -50%;
-      transform: translate(-50%, -50%);
-    }
-
     .table-section {
       padding-top: 2rem;
     }
@@ -73,16 +56,9 @@
       background-color: transparent;
     }
 
-    #report-card {
-      top: 30%;
-      padding: 2rem;
-      border: solid 2px;
-      text-align: center;
-      height: 19rem;
-      width: 23rem;
-      background: #f8faffa1;
+    #logout-button {
+      color: #6c757d;
     }
-
     </style>
 
   </head>
@@ -96,15 +72,62 @@
             </div>
           </div>
         </div>
-        </div>
           <div id=""  class="container page-content">
-            <div id="report-card" class="center-along-x-dimension">
-              <div class=""><h1>You Scored:</h1></div>
-              <div class=""style="font-size:17px;margin-top:1rem;">{{ correct_answer_count }} / {{ form_question_count }} Correct</div>
-              <div class=""><h2 style="margin-top:1rem;">{{ percentage_correct }}%</h2></div>
-              <button class="btn btn-primary btn-sm" style="margin-top:1rem;"><a href="{% url 'challenge' challenge_id=challenge.id %}">Try Again</a></button>
+            <div class="table-section" >
+              <p>Challenge Designer</p>
+              <table class="table table-bordered common-text table-sm">
+                <thead class="thead-dark site-table-header">
+                <tr>
+                  <th scope="col">Challenge Name</th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
+                </tr>
+                </thead>
+                {% for challenge in challenges  %}
+                <tr>
+                  <td><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">{{challenge.name}} Challenge</a></td>
+                  <td><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">Edit</a></td>
+                  <td><a href="{% url 'challenge' challenge_id=challenge.id %}">Preview Challenge</a></td>
+                  <td><a href="{% url 'view_challenge_analytics' challenge_id=challenge.id %}">View Student Analytics</a></td>
+                  <td><button onclick="copy_challenge_link_to_clipboard('{% url 'challenge' challenge_id=challenge.id %}')") >Share Challenge Link</button></td>
+                </tr>
+                {% endfor %}
+              </table>
+              <div class="d-flex flex-row-reverse"><button class="btn btn-secondary btn-sm"><a href="{% url 'create_new_challenge' %}">Create New Challenge</a></button></div>
             </div>
+
           </div>
         </div>
   </body>
+  <script>
+  function copy_challenge_link_to_clipboard(challenge_link) {
+    base_url = "http://127.0.0.1:8000";
+    const support_element = document.createElement('textarea');
+    support_element.value = base_url + challenge_link;
+
+    support_element.setAttribute('readonly', '');
+    support_element.style.position = 'absolute';
+    support_element.style.left = '-9999px';
+
+    document.body.appendChild(support_element);
+    support_element.select();
+    document.execCommand('copy');
+    document.body.removeChild(support_element)
+
+    alert("Copied Challenge Link to Clipboard!");
+  }
+  </script>
 </html>
+
+
+<!-- <div class="container">
+  {% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+</div> -->
