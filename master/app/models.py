@@ -26,6 +26,7 @@ class Skill(models.Model):
 class Challenge(models.Model):
     name = models.CharField(max_length=255)
     parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, default=ID_OF_DEFAULT_SKILL)
+    password = models.CharField(max_length=255, default='0000')
 
     def __str__(self):
        return self.name
@@ -36,6 +37,10 @@ class Question(models.Model):
 
     def __str__(self):
        return self.text
+
+class PassEntry(models.Model):
+    associated_challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
+    associated_user = models.ForeignKey(User, on_delete=models.PROTECT)
 
 class QuestionChoice(models.Model):
     parent_question = models.ForeignKey(Question, on_delete=models.CASCADE)

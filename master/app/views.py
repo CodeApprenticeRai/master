@@ -95,9 +95,48 @@ def view_challenges(request):
 
     return render(request, 'app/challenge_dashboard.html', context)
 
+def challenge_password(request, challenge_id):
+    challenge = Challenge.objects.get(pk=challenge_id)
+    pw = challenge.password
+    pwform = app.forms.ChallengePasswordForm
+
+    context = {
+        'challenge': challenge,
+        'form_password_entry': pwform,
+    }
+
+    if PassEntry.objects.filter(associated_challenge=challenge.id, associated_user=request.user.id).exists():
+        return redirect('challenge', challenge_id=challenge.id)
+
+    if request.method == 'POST':
+        dat = request.POST.dict()
+        if dat.get("text") == pw:
+            password_obj = PassEntry()
+            password_obj.associated_challenge = challenge
+            password_obj.associated_user = request.user
+            password_obj.save()
+            return redirect('challenge', challenge_id=challenge.id)
+        else:
+            context['status'] = "Incorrect Password"
+
+    return render(request, 'app/password_challenge.html', context)
 
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
+    student = request.user
+    print("obv")
+    # Authentication
+    if request.user.is_authenticated:
+        print("auth")
+        if challenge_obj.password != '0000':
+            print("ouch")
+            # Check Password & if User has entered before
+            if not PassEntry.objects.filter(associated_challenge=challenge_obj.id,
+                                                associated_user=student.id).exists():
+                return redirect('challenge_password', challenge_id=challenge_obj.id)
+    else:
+        return redirect('login/')
+
     if request.method == 'POST':
         # !! does not generalize,
         # assumes that all keys in request.POST
