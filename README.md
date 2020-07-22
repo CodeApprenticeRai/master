@@ -1,3 +1,7 @@
+# Master
+Create and distribute multiple choice challenges. 
+
+### Quickstart Instructions
 1. Install python virtual enviornment using 'python3 -m pip install --user virtualenv'.
 2. Create a new venv using 'python3 -m venv env'.
 3. Enter the venv using 'source env/bin/activate'
