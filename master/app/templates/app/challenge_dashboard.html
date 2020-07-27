@@ -114,6 +114,11 @@
                   <!-- <td><button onclick="{% url 'challenge' challenge_id=challenge.id %}')") >Share Challenge Link</button></td> -->
                 </tr>
                 {% endfor %}
+                {% if not challenges %}
+                <tr>
+                  <td><small>You have not been invited to any challenges as yet.</small></td>
+                </tr>
+                {% endif %}
               </table>
               {% endif %}
             </div>
