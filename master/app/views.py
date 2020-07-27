@@ -106,7 +106,7 @@ def view_challenges(request):
 
     return render(request, 'app/challenge_dashboard.html', context)
 
-def challenge_password(request, challenge_id):
+def enter_challenge_password(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
     password = challenge_obj.password
     password_form = app.forms.ChallengePasswordForm
@@ -119,7 +119,7 @@ def challenge_password(request, challenge_id):
     if CandidateRole.objects.filter(associated_challenge=challenge_obj.id, associated_user=request.user.id).exists():
         return redirect('challenge', challenge_id=challenge_obj.id)
 
-    if request.method == 'POST':
+    if (request.method == 'POST'):
         data = request.POST.dict()
         if data.get("text") == password:
             password_obj = CandidateRole()
@@ -132,11 +132,11 @@ def challenge_password(request, challenge_id):
 
     return render(request, 'app/password_challenge.html', context)
 
-def please_login(request):
+def require_login(request):
     if request.method == "POST":
         if request.POST.get('Login | Sign Up'):
             return redirect('login')
-    return render(request, 'app/please_login.html')
+    return render(request, 'app/require_login.html')
 
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
