@@ -5,8 +5,11 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('sign_up/', views.sign_up, name="sign_up"),
+    path('instructor/sign_up/', views.sign_up, name="instructor_sign_up"),
     path('login/', views.login, name="login"),
+    path('login/require', views.require_login, name="require_login"), # require non-instructor login in order to take challenge
     path('logout/', views.logout, name="logout"),
+    path('home/course/skill/challenge/<int:challenge_id>/password', views.enter_challenge_password, name="enter_challenge_password"),
     path('home/course/skill/challenge/<int:challenge_id>/', views.challenge, name="challenge"),
     path(r'home/course/skill/challenge/preview/<int:challenge_id>', views.challenge, name="preview_challenge"),
     path('home/challenges', views.view_challenges, name="view_challenges"),

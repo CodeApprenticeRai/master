@@ -74,7 +74,9 @@
         </div>
           <div id=""  class="container page-content">
             <div class="table-section" >
-              <p>Challenge Designer</p>
+              <p>Challenge Dashboard</p>
+
+              {% if is_instructor %}
               <table class="table table-bordered common-text table-sm">
                 <thead class="thead-dark site-table-header">
                 <tr>
@@ -96,6 +98,29 @@
                 {% endfor %}
               </table>
               <div class="d-flex flex-row-reverse"><button class="btn btn-secondary btn-sm"><a href="{% url 'create_new_challenge' %}">Create New Challenge</a></button></div>
+              {% endif %}
+              {% if not is_instructor %}
+              <table class="table table-bordered common-text table-sm">
+                <thead class="thead-dark site-table-header">
+                <tr>
+                  <th scope="col">Challenge Name</th>
+                  <th scope="col"></th>
+                </tr>
+                </thead>
+                {% for challenge in challenges  %}
+                <tr>
+                  <td>{{challenge.name}} Challenge</td>
+                  <td><a href="{% url 'challenge' challenge_id=challenge.id %}">Take Challenge</a></td>
+                  <!-- <td><button onclick="{% url 'challenge' challenge_id=challenge.id %}')") >Share Challenge Link</button></td> -->
+                </tr>
+                {% endfor %}
+                {% if not challenges %}
+                <tr>
+                  <td><small>You have not been invited to any challenges as yet.</small></td>
+                </tr>
+                {% endif %}
+              </table>
+              {% endif %}
             </div>
 
           </div>

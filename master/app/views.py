@@ -23,6 +23,11 @@ def sign_up(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user_obj = form.save()
+
+            if ("instructor" in request.path):
+                #Give user base instructor role
+                InstructorRole.objects.create(associated_instructor=user_obj).save()
+
             username  = form.cleaned_data.get('username')
             django_login(request, user_obj)
             return redirect("index")
@@ -48,7 +53,7 @@ def sign_up(request):
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('view_challenges')
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -83,21 +88,69 @@ def logout(request):
 
 @login_required
 def view_challenges(request):
-    ID_OF_DEFAULT_SKILL = 2 # !!
-    skill_obj = Skill.objects.get(id=ID_OF_DEFAULT_SKILL) # !!
-    print(skill_obj)
-    challenges = Challenge.objects.filter(parent_skill=skill_obj)
+    user_managed_challenges = [ instructor_role_obj.associated_challenge
+                for instructor_role_obj in
+                InstructorRole.objects.filter(associated_instructor=request.user)
+    ]
+
+    is_instructor = True if user_managed_challenges else False
+    challenges = []
+
+    if is_instructor:
+        challenges = [challenge for challenge in user_managed_challenges if (challenge != None)]
 
     context={
-    "skill": skill_obj,
-    "challenges": challenges
+    "challenges": challenges,
+    "is_instructor": is_instructor
     }
 
     return render(request, 'app/challenge_dashboard.html', context)
 
-@login_required
+def enter_challenge_password(request, challenge_id):
+    challenge_obj = Challenge.objects.get(pk=challenge_id)
+    password = challenge_obj.password
+    password_form = app.forms.ChallengePasswordForm
+
+    context = {
+        'challenge': challenge_obj,
+        'form_password_entry': password_form,
+    }
+
+    if CandidateRole.objects.filter(associated_challenge=challenge_obj.id, associated_user=request.user.id).exists():
+        return redirect('challenge', challenge_id=challenge_obj.id)
+
+    if (request.method == 'POST'):
+        data = request.POST.dict()
+        if data.get("text") == password:
+            password_obj = CandidateRole()
+            password_obj.associated_challenge = challenge_obj
+            password_obj.associated_user = request.user
+            password_obj.save()
+            return redirect('challenge', challenge_id=challenge_obj.id)
+        else:
+            context['status'] = "Incorrect Password"
+
+    return render(request, 'app/password_challenge.html', context)
+
+def require_login(request):
+    if request.method == "POST":
+        if request.POST.get('Login | Sign Up'):
+            return redirect('login')
+    return render(request, 'app/require_login.html')
+
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
+    student = request.user
+    # Authentication
+    if request.user.is_authenticated:
+        if challenge_obj.password != '0000':
+            # Check Password & if User has entered before
+            if not CandidateRole.objects.filter(associated_challenge=challenge_obj.id,
+                                                associated_user=student.id).exists():
+                return redirect('challenge_password', challenge_id=challenge_obj.id)
+    else:
+        return redirect('please_login')
+
     if request.method == 'POST':
         # !! does not generalize,
         # assumes that all keys in request.POST
@@ -164,6 +217,7 @@ def edit_challenge(request, challenge_id):
         if request.POST.get('update-challenge-name', False):
             challenge_obj.name = request.POST['name']
             challenge_obj.save()
+            InstructorRole.objects.create(associated_instructor=request.user, associated_challenge=challenge_obj).save()
             referenced_challenge_exists = len(Challenge.objects.filter(id=challenge_id)) > 0
             messages.success(request, "Challenge name successfully updated to '{}'".format(challenge_obj.name))
         if request.POST.get('delete-challenge', False):

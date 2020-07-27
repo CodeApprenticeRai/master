@@ -1,28 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-ID_OF_DEFAULT_SKILL =  2 # !!
-
-
-
-class Course(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-      
-class Skill(models.Model):
-    name = models.CharField(max_length=255)
-    parent_course = models.ForeignKey(Course, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.name)
-
-
 class Challenge(models.Model):
     name = models.CharField(max_length=255)
-    parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, default=ID_OF_DEFAULT_SKILL)
+    password = models.CharField(max_length=255, default='0000')
 
     def __str__(self):
         return self.name
@@ -30,7 +11,7 @@ class Challenge(models.Model):
 
 class InstructorRole(models.Model):
    associated_instructor = models.ForeignKey(User, on_delete=models.PROTECT)
-   associated_challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
+   associated_challenge = models.ForeignKey(Challenge, null=True, on_delete=models.PROTECT)
 
    def __str__(self):
        return str(self.associated_user.username)
@@ -48,6 +29,10 @@ class Question(models.Model):
     def __str__(self):
         return self.text
 
+
+class CandidateRole(models.Model):
+    associated_challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
+    associated_user = models.ForeignKey(User, on_delete=models.PROTECT)
 
 class QuestionChoice(models.Model):
     parent_question = models.ForeignKey(Question, on_delete=models.CASCADE)
