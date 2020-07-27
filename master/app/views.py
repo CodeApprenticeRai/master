@@ -53,7 +53,7 @@ def sign_up(request):
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('view_challenges')
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -106,9 +106,51 @@ def view_challenges(request):
 
     return render(request, 'app/challenge_dashboard.html', context)
 
-@login_required
+def challenge_password(request, challenge_id):
+    challenge_obj = Challenge.objects.get(pk=challenge_id)
+    password = challenge_obj.password
+    password_form = app.forms.ChallengePasswordForm
+
+    context = {
+        'challenge': challenge_obj,
+        'form_password_entry': password_form,
+    }
+
+    if CandidateRole.objects.filter(associated_challenge=challenge_obj.id, associated_user=request.user.id).exists():
+        return redirect('challenge', challenge_id=challenge_obj.id)
+
+    if request.method == 'POST':
+        data = request.POST.dict()
+        if data.get("text") == password:
+            password_obj = CandidateRole()
+            password_obj.associated_challenge = challenge_obj
+            password_obj.associated_user = request.user
+            password_obj.save()
+            return redirect('challenge', challenge_id=challenge_obj.id)
+        else:
+            context['status'] = "Incorrect Password"
+
+    return render(request, 'app/password_challenge.html', context)
+
+def please_login(request):
+    if request.method == "POST":
+        if request.POST.get('Login | Sign Up'):
+            return redirect('login')
+    return render(request, 'app/please_login.html')
+
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
+    student = request.user
+    # Authentication
+    if request.user.is_authenticated:
+        if challenge_obj.password != '0000':
+            # Check Password & if User has entered before
+            if not CandidateRole.objects.filter(associated_challenge=challenge_obj.id,
+                                                associated_user=student.id).exists():
+                return redirect('challenge_password', challenge_id=challenge_obj.id)
+    else:
+        return redirect('please_login')
+
     if request.method == 'POST':
         # !! does not generalize,
         # assumes that all keys in request.POST
