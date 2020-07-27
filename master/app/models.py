@@ -22,6 +22,7 @@ class InstructorRole(models.Model):
        else:
            return False
 
+
 class Question(models.Model):
     parent_challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
     text = models.TextField()
@@ -33,6 +34,7 @@ class Question(models.Model):
 class CandidateRole(models.Model):
     associated_challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
     associated_user = models.ForeignKey(User, on_delete=models.PROTECT)
+
 
 class QuestionChoice(models.Model):
     parent_question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -55,4 +57,3 @@ class Scorecard(models.Model):
 
     def __str__(self):
         return self.score
-

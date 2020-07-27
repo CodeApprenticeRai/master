@@ -3,11 +3,11 @@ from django.shortcuts import render, redirect
 from .models import *
 import app.forms
 
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import logout as django_logout, authenticate, login as django_login
 from django.contrib import messages
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -173,9 +173,9 @@ def challenge(request, challenge_id):
             form_question_count += 1
 
         # generate scorecard
-        chal = Challenge.objects.get(id=challenge_id)
-        perc = ((correct_answer_count / form_question_count) * 100)
-        grade = Scorecard(chal, request.user.id, perc)
+        # chal = Challenge.objects.get(id=challenge_id)
+        # perc = ((correct_answer_count / form_question_count) * 100)
+        # grade = Scorecard(chal, request.user.id, perc)
 
         context = {
             'challenge': challenge_obj,
