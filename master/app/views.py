@@ -53,7 +53,7 @@ def sign_up(request):
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('view_challenges')
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -101,14 +101,58 @@ def view_challenges(request):
 
     context={
     "challenges": challenges,
-    "is_instructor": is_instructor
+    "is_instructor": is_instructor,
+    "user": request.user
     }
 
     return render(request, 'app/challenge_dashboard.html', context)
 
 @login_required
+def enter_challenge_password(request, challenge_id):
+    challenge_obj = Challenge.objects.get(pk=challenge_id)
+    password = challenge_obj.password
+    password_form = app.forms.ChallengePasswordForm
+
+    context = {
+        'challenge': challenge_obj,
+        'form_password_entry': password_form,
+    }
+
+    if CandidateRole.objects.filter(associated_challenge=challenge_obj.id, associated_user=request.user.id):
+        return redirect('challenge', challenge_id=challenge_obj.id)
+
+    if (request.method == 'POST'):
+        data = request.POST.dict()
+        if data.get("text") == password:
+            password_obj = CandidateRole()
+            password_obj.associated_challenge = challenge_obj
+            password_obj.associated_user = request.user
+            password_obj.save()
+            return redirect('challenge', challenge_id=challenge_obj.id)
+        else:
+            context['status'] = "Incorrect Password"
+
+    return render(request, 'app/require_challenge_password.html', context)
+
+def require_login(request):
+    if request.method == "POST":
+        if request.POST.get('Login | Sign Up'):
+            return redirect('login')
+    return render(request, 'app/require_login.html')
+
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
+
+    # require authenticate
+    if not request.user.is_authenticated:
+        return redirect('require_login')
+
+    if (challenge_obj.password != '0000'):
+        # check if User is Candidate for this Challenge
+        if not CandidateRole.objects.filter(associated_challenge=challenge_obj.id,
+                                            associated_user=request.user.id):
+            return redirect('enter_challenge_password', challenge_id=challenge_obj.id)
+
     if request.method == 'POST':
         # !! does not generalize,
         # assumes that all keys in request.POST
@@ -118,17 +162,22 @@ def challenge(request, challenge_id):
 
         # print(request.POST)
         for form_question in request.POST:
-            if ( form_question == "csrfmiddlewaretoken" ):
+            if form_question == "csrfmiddlewaretoken":
                 continue
 
             user_choice_id = request.POST[form_question]
             choice_obj = QuestionChoice.objects.get(id=user_choice_id)
 
             print([choice_obj.id, choice_obj.text, choice_obj.correct_answer])
-            if (choice_obj.correct_answer):
+            if choice_obj.correct_answer:
                 correct_answer_count += 1
 
             form_question_count += 1
+
+        # generate scorecard
+        # chal = Challenge.objects.get(id=challenge_id)
+        # perc = ((correct_answer_count / form_question_count) * 100)
+        # grade = Scorecard(chal, request.user.id, perc)
 
         context = {
             'challenge': challenge_obj,
@@ -153,7 +202,6 @@ def challenge(request, challenge_id):
 
         return render(request, 'app/challenge.html', context)
 
-
 @login_required
 def create_new_challenge(request):
     next_unclaimed_challenge_id = Challenge.objects.latest('id').id + 1
@@ -175,6 +223,7 @@ def edit_challenge(request, challenge_id):
             referenced_challenge_exists = len(Challenge.objects.filter(id=challenge_id)) > 0
             messages.success(request, "Challenge name successfully updated to '{}'".format(challenge_obj.name))
         if request.POST.get('delete-challenge', False):
+            InstructorRole.objects.get(associated_instructor=request.user, associated_challenge=challenge_obj).delete()
             challenge_obj.delete()
             return redirect('index')
 
@@ -192,6 +241,7 @@ def edit_challenge(request, challenge_id):
     return render(request, 'app/edit_challenge.html', context)
 
 
+
 @login_required
 def edit_question(request, challenge_id):
     associated_challenge_obj = Challenge.objects.get(id=challenge_id)
@@ -205,6 +255,7 @@ def edit_question(request, challenge_id):
             if question_title and question_choices: #if they are not null, not empty
                 quesion_obj = Question(parent_challenge=associated_challenge_obj, text=question_title)
                 quesion_obj.save()
+
 
                 #confirm question obj
                 for question_choice_text in question_choices:

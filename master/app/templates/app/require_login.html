@@ -1,6 +1,15 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html><html>
   <head>
-    <title></title>
+    <title>Master: Challenges</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS only -->
@@ -22,15 +31,14 @@
     }
 
     body {
-
+      background-color: #e9ecef;
       font-family: 'Source Sans Pro', sans-serif;
-      /* font-size: 0.7rem; */
+      font-size: 0.7rem;
       height: 100%;
       width: 100%;
     }
 
     #site-header {
-      background-color: #e9ecef;
       font-size: 1rem;
       padding-top: 1.7rem;
       padding-bottom: 0.9rem;
@@ -40,6 +48,7 @@
 
     .table-section {
       padding-top: 2rem;
+
     }
 
     .common-text {
@@ -63,32 +72,31 @@
     </style>
 
   </head>
-
-  <body>
-    <div id='site-wrapper' class="">
-      <div id="site-header" class="">
-        <div class="container">
-          <div class="row">
-            <a class="master-symbol" href="{% url 'index' %}">Master</a>
-            <a id="logout-button" class="align-self-end float-right text-right justify-content-end ml-auto" href="{% url 'logout' %}">Logout</a>
+  <center>
+  <body tex>
+      <div id='site-wrapper'>
+        <div id="site-header" class="">
+          <div class="container">
+            <div class="row">
+              <a class="master-symbol" href="{% url 'index' %}">Master</a>
+            </div>
           </div>
         </div>
+          <br>
+          <br>
+      <div style="width:450px;height:300px;border:1px solid #000;" id=""  class="container page-content">
+          <br>
+          <br>
+          <br>
+          <br>
+          <h5 class="header-margin">You must be logged in to view this Challenge</h5>
+          <br>
+          <br>
+        <form method="POST">
+          {% csrf_token %}
+            <div class="col-auto"><input type="submit" name="Login | Sign Up" value="Login | Sign Up" class="btn btn-primary btn-sm"></div>
+        </form>
       </div>
-      <div class="jumbotron"><h3>{{ challenge.name }} Challenge</h3></div>
-      <div id=""  class="container page-content">
-        <div class="container">
-          <form action="{% url 'challenge' challenge_id=challenge.id %}" method="post">
-            {% csrf_token %}
-            {{ form }}
-            {% if not preview %}<input type="submit" value="Submit">{% endif %}
-          </form>
-          {% if preview %}
-          <div class="row d-flex flex-row-reverse" style="margin-top:0.3rem;">
-            <button class="btn btn-primary btn-sm"><a href="{% url 'edit_challenge' challenge_id=challenge.id %}">Back to Challenge Editor</a></button>
-          </div>
-          {% endif  %}
-        </div>
-      </div>
-    </div>
   </body>
+  </center>
 </html>

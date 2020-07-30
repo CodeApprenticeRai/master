@@ -6,4 +6,5 @@ admin.site.register(InstructorRole)
 admin.site.register(Challenge)
 admin.site.register(Question)
 admin.site.register(QuestionChoice)
+admin.site.register(CandidateRole)
 # Register your models here.

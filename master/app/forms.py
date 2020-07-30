@@ -8,6 +8,12 @@ class ChallengeForm(ModelForm):
         model = qm.Challenge
         fields = ['name']
 
+class ChallengePasswordForm(forms.Form):
+    text = forms.CharField(
+        label="",
+        widget=forms.TextInput()
+    )
+
 class QuestionModelForm(ModelForm):
     def __init__(self):
         super(QuestionModelForm, self).__init__()
