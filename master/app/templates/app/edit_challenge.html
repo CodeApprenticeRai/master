@@ -95,6 +95,21 @@
     #logout-button {
       color: #6c757d;
     }
+
+    #message-display {
+    position: absolute;
+    z-index: 101;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #00e073;
+    text-align: center;
+    line-height: 2.5;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow:    0 0 5px black;
+    box-shadow:         0 0 5px black;
+    }
     </style>
 
   </head>
@@ -109,6 +124,15 @@
           </div>
         </div>
       <div id=""  class="container page-content">
+        <div id="message-display">
+        {% csrf_token %}
+             {% if messages %}
+                      {% for message in messages %}
+                        {{message}}
+                      {% endfor %}
+              {% endif %}
+      </div>
+
           <h1 class="header-margin">Challenge Editor</h1>
           <br>
         <form method="POST">
@@ -145,6 +169,12 @@
           </div>
           <div class="row d-flex flex-row-reverse" style="margin-top:0.3rem;">
             <button class="btn btn-primary btn-sm"><a href="{% url 'preview_challenge' challenge_id=challenge_name_form.instance.id %}">Preview Challenge</a></button>
+          </div>
+
+          <div class="row d-flex flex-row-reverse" style="margin-top: .3rem;">
+            <button class="btn btn-primary btn-sm">
+              <a href="{% url 'index' %}">Return to Challenges</a>
+            </button>
           </div>
           {% endif %}
       </div>

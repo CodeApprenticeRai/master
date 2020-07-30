@@ -27,7 +27,7 @@ def sign_up(request):
             django_login(request, user_obj)
             return redirect("index")
         else:
-            return HttpResponse("Sign Up Failed.")
+            messages.error(request, "Sign up failed: Invalid Credentials")
 
     sign_up_form = UserCreationForm()
 
@@ -61,11 +61,9 @@ def login(request):
                 # messages.info(request, f"You are now logged in as {username}")
                 return redirect('index')
             else:
-                pass
-                # messages.error(request, "Invalid username or password.")
+                messages.error(request, "Invalid username or password.")
         else:
-            pass
-            # messages.error(request, "Invalid username or password.")
+            messages.error(request, "Invalid username or password.")
 
     context = {
         'form': AuthenticationForm
@@ -164,7 +162,8 @@ def edit_challenge(request, challenge_id):
             messages.success(request, "Challenge name successfully updated to '{}'".format(challenge_obj.name))
         if request.POST.get('delete-challenge', False):
             challenge_obj.delete()
-            return redirect('index')
+            messages.success(request, "Challenge '{}' successfully deleted".format(challenge_obj.name))
+
 
     challenge_question_set = Question.objects.filter(parent_challenge=challenge_obj)
 
