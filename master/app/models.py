@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 class Challenge(models.Model):
     name = models.CharField(max_length=255)
-    password = models.CharField(max_length=255, default='0000')
+    password = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
@@ -14,7 +14,7 @@ class InstructorRole(models.Model):
    associated_challenge = models.ForeignKey(Challenge, null=True, on_delete=models.PROTECT)
 
    def __str__(self):
-       return str(self.associated_user.username)
+       return str(self.associated_instructor.username)
 
    def is_instructor_of_challenge(self, user_id, challenge_id):
        if self.objects.filter(associated_instructor=user_id, associated_challenge=user_id):

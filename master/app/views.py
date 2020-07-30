@@ -101,11 +101,13 @@ def view_challenges(request):
 
     context={
     "challenges": challenges,
-    "is_instructor": is_instructor
+    "is_instructor": is_instructor,
+    "user": request.user
     }
 
     return render(request, 'app/challenge_dashboard.html', context)
 
+@login_required
 def enter_challenge_password(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
     password = challenge_obj.password
@@ -116,7 +118,7 @@ def enter_challenge_password(request, challenge_id):
         'form_password_entry': password_form,
     }
 
-    if CandidateRole.objects.filter(associated_challenge=challenge_obj.id, associated_user=request.user.id).exists():
+    if CandidateRole.objects.filter(associated_challenge=challenge_obj.id, associated_user=request.user.id):
         return redirect('challenge', challenge_id=challenge_obj.id)
 
     if (request.method == 'POST'):
@@ -130,7 +132,7 @@ def enter_challenge_password(request, challenge_id):
         else:
             context['status'] = "Incorrect Password"
 
-    return render(request, 'app/password_challenge.html', context)
+    return render(request, 'app/require_challenge_password.html', context)
 
 def require_login(request):
     if request.method == "POST":
@@ -140,16 +142,16 @@ def require_login(request):
 
 def challenge(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
-    student = request.user
-    # Authentication
-    if request.user.is_authenticated:
-        if challenge_obj.password != '0000':
-            # Check Password & if User has entered before
-            if not CandidateRole.objects.filter(associated_challenge=challenge_obj.id,
-                                                associated_user=student.id).exists():
-                return redirect('challenge_password', challenge_id=challenge_obj.id)
-    else:
-        return redirect('please_login')
+
+    # require authenticate
+    if not request.user.is_authenticated:
+        return redirect('require_login')
+
+    if (challenge_obj.password != '0000'):
+        # check if User is Candidate for this Challenge
+        if not CandidateRole.objects.filter(associated_challenge=challenge_obj.id,
+                                            associated_user=request.user.id):
+            return redirect('enter_challenge_password', challenge_id=challenge_obj.id)
 
     if request.method == 'POST':
         # !! does not generalize,
@@ -221,6 +223,7 @@ def edit_challenge(request, challenge_id):
             referenced_challenge_exists = len(Challenge.objects.filter(id=challenge_id)) > 0
             messages.success(request, "Challenge name successfully updated to '{}'".format(challenge_obj.name))
         if request.POST.get('delete-challenge', False):
+            InstructorRole.objects.get(associated_instructor=request.user, associated_challenge=challenge_obj).delete()
             challenge_obj.delete()
             return redirect('index')
 
