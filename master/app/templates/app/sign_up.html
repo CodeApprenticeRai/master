@@ -120,6 +120,15 @@
   </head>
   <body>
     <div id='site-wrapper'>
+      
+      <div id="site-header" class="">
+          <div class="container">
+            <div class="row">
+              <a class="master-symbol" href="{% url 'index' %}">Master</a>
+            </div>
+          </div>
+      </div>
+
       <div id=""  class="container page-content">
         <div class="card-body center hover-card">
           <div id="message-display">
@@ -135,6 +144,7 @@
             {{form}}
             <button type="submit">Sign Up</button>
           </form>
+          <button onclick="window.location.href = 'http://localhost:8000/login/'">Already Have an Account?</button>
         </div>
       </div>
     </div>
