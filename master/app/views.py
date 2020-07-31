@@ -220,3 +220,6 @@ def delete_question(request, question_id):
 
     else:
         return redirect('index')
+
+
+

@@ -107,6 +107,12 @@
       font-size: 17px;
       margin-bottom: 0;
     }
+
+      .title-card{
+        font-size:30px;
+        text-align:center;
+        padding-top:50px;
+      }
     </style>
 
   </head>
@@ -115,12 +121,15 @@
       <div id="site-header" class="">
           <div class="container">
             <div class="row">
-              <a class="master-symbol" href="{% url 'index' %}">Master</a>
+              <a class="master-symbol" href="{% url 'index' %}" style="color:#000000;text-decoration: none">Master</a>
             </div>
           </div>
       </div>
 
       <div id=""  class="container page-content">
+        <div class="title-card common-text">
+          <h1>Login to Master</h1>
+        </div>
         <div class="card-body center hover-card">
           <div id="message-display">
         {% csrf_token %}
