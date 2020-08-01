@@ -59,6 +59,36 @@
     #logout-button {
       color: #6c757d;
     }
+
+         #message-display-student {
+    position: absolute;
+    z-index: 101;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #FF0000;
+    text-align: center;
+    line-height: 2.5;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow:    0 0 5px black;
+    box-shadow:         0 0 5px black;
+    }
+
+           #message-display-instructor {
+    position: absolute;
+    z-index: 101;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #FF0000;
+    text-align: center;
+    line-height: 2.5;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow:    0 0 5px black;
+    box-shadow:         0 0 5px black;
+    }
     </style>
 
   </head>
@@ -78,6 +108,11 @@
               <p>Challenge Dashboard</p>
 
               {% if is_instructor %}
+                {% if not challenges %}
+                  <div id="message-display-instructor">
+                    You do not currently have any challenges. Add some for students to take!
+                  </div>
+                {% endif %}
               <table class="table table-bordered common-text table-sm">
                 <thead class="thead-dark site-table-header">
                 <tr>
@@ -98,9 +133,16 @@
                 </tr>
                 {% endfor %}
               </table>
-              <div class="d-flex flex-row-reverse"><button class="btn btn-secondary btn-sm"><a href="{% url 'create_new_challenge' %}">Create New Challenge</a></button></div>
               {% endif %}
+
+              <div class="d-flex flex-row-reverse" style="position: absolute; left:75%;bottom:85%;"><button class="btn btn-secondary btn-sm"><a href="{% url 'create_new_challenge' %}">Create New Challenge</a></button></div>
+
               {% if not is_instructor %}
+                {% if not challenges %}
+                  <div id="message-display-student">
+                    You have not accepted any challenges.
+                  </div>
+                {% endif %}
               <table class="table table-bordered common-text table-sm">
                 <thead class="thead-dark site-table-header">
                 <tr>
@@ -147,13 +189,3 @@
   </script>
 </html>
 
-
-<!-- <div class="container">
-  {% if messages %}
-<ul class="messages">
-  {% for message in messages %}
-  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
-</div> -->

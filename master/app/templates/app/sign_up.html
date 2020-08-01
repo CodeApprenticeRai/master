@@ -86,18 +86,63 @@
       margin-bottom: 0;
     }
 
+       #message-display {
+    position: absolute;
+    z-index: 101;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #FF0000;
+    text-align: center;
+    line-height: 2.5;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow:    0 0 5px black;
+    box-shadow:         0 0 5px black;
+    }
+
+      #message-wrap{
+        position: absolute;
+    z-index: 101;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #FF0000;
+    text-align: center;
+    line-height: 2.5;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow:    0 0 5px black;
+    box-shadow:         0 0 5px black;
+      }
     </style>
 
   </head>
   <body>
     <div id='site-wrapper'>
+      <div id="site-header" class="">
+          <div class="container">
+            <div class="row">
+              <a class="master-symbol" href="{% url 'index' %}" style="color: #000000;text-decoration: none">Master</a>
+            </div>
+          </div>
+      </div>
       <div id=""  class="container page-content">
         <div class="card-body center hover-card">
+          <div id="message-display">
+              {% csrf_token %}
+             {% if messages %}
+                      {% for message in messages %}
+                        {{message}}
+                      {% endfor %}
+              {% endif %}
+          </div>
           <form method="POST">
             {% csrf_token %}
             {{form}}
             <button type="submit">Sign Up</button>
           </form>
+          <button onclick="window.location.href = 'http://localhost:8000/login/'">Already Have an Account?</button>
         </div>
       </div>
     </div>

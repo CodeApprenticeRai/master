@@ -32,7 +32,7 @@ def sign_up(request):
             django_login(request, user_obj)
             return redirect("index")
         else:
-            return HttpResponse("Sign Up Failed.")
+            messages.error(request, "Sign up failed: Invalid Credentials")
 
     sign_up_form = UserCreationForm()
 
@@ -66,11 +66,9 @@ def login(request):
                 # messages.info(request, f"You are now logged in as {username}")
                 return redirect('index')
             else:
-                pass
-                # messages.error(request, "Invalid username or password.")
+                messages.error(request, "Invalid username or password.")
         else:
-            pass
-            # messages.error(request, "Invalid username or password.")
+                messages.error(request, "Invalid username or password.")
 
     context = {
         'form': AuthenticationForm
