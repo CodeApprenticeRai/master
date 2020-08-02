@@ -53,7 +53,7 @@ def sign_up(request):
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('view_challenges')
 
     if request.method == "POST":
         form = AuthenticationForm(request, request.POST)
@@ -101,64 +101,50 @@ def view_challenges(request):
 
     context={
     "challenges": challenges,
-    "is_instructor": is_instructor
+    "is_instructor": is_instructor,
+    "user": request.user
     }
 
     return render(request, 'app/challenge_dashboard.html', context)
 
 @login_required
-def challenge(request, challenge_id):
+def enter_challenge_password(request, challenge_id):
     challenge_obj = Challenge.objects.get(pk=challenge_id)
-    if request.method == 'POST':
-        # !! does not generalize,
-        # assumes that all keys in request.POST
-        # is a form_question
-        form_question_count = 0
-        correct_answer_count = 0
+    password = challenge_obj.password
+    password_form = app.forms.ChallengePasswordForm
 
-        # print(request.POST)
-        for form_question in request.POST:
-            if ( form_question == "csrfmiddlewaretoken" ):
-                continue
+    context = {
+        'challenge': challenge_obj,
+        'form_password_entry': password_form,
+    }
 
-            user_choice_id = request.POST[form_question]
-            choice_obj = QuestionChoice.objects.get(id=user_choice_id)
+    if CandidateRole.objects.filter(associated_challenge=challenge_obj.id, associated_user=request.user.id):
+        return redirect('challenge', challenge_id=challenge_obj.id)
 
-            print([choice_obj.id, choice_obj.text, choice_obj.correct_answer])
-            if (choice_obj.correct_answer):
-                correct_answer_count += 1
+    if (request.method == 'POST'):
+        data = request.POST.dict()
+        if data.get("text") == password:
+            password_obj = CandidateRole()
+            password_obj.associated_challenge = challenge_obj
+            password_obj.associated_user = request.user
+            password_obj.save()
+            return redirect('challenge', challenge_id=challenge_obj.id)
+        else:
+            context['status'] = "Incorrect Password"
 
-            form_question_count += 1
+    return render(request, 'app/require_challenge_password.html', context)
 
-        context = {
-            'challenge': challenge_obj,
-            'correct_answer_count': correct_answer_count,
-            'form_question_count': form_question_count,
-            'percentage_correct': round( (correct_answer_count /  form_question_count) * 100, 2)
-        }
-
-        return render(request, 'app/challenge_report.html', context)
-
-    else:
-
-        context = {
-            "challenge": challenge_obj,
-            "form": app.forms.ChallengePresentationalForm(challenge_id)
-        }
-
-        preview = "preview" in request.path
-
-        if preview:
-            context["preview"] = True
-
-        return render(request, 'app/challenge.html', context)
+def require_login(request):
+    if request.method == "POST":
+        if request.POST.get('Login | Sign Up'):
+            return redirect('login')
+    return render(request, 'app/require_login.html')
 
 
 @login_required
 def create_new_challenge(request):
     next_unclaimed_challenge_id = Challenge.objects.latest('id').id + 1
     return redirect('edit_challenge', challenge_id=next_unclaimed_challenge_id)
-
 
 # Creation and Editing of Challenges
 @login_required
@@ -175,6 +161,7 @@ def edit_challenge(request, challenge_id):
             referenced_challenge_exists = len(Challenge.objects.filter(id=challenge_id)) > 0
             messages.success(request, "Challenge name successfully updated to '{}'".format(challenge_obj.name))
         if request.POST.get('delete-challenge', False):
+            InstructorRole.objects.get(associated_instructor=request.user, associated_challenge=challenge_obj).delete()
             challenge_obj.delete()
             return redirect('index')
 
@@ -191,7 +178,6 @@ def edit_challenge(request, challenge_id):
     }
     return render(request, 'app/edit_challenge.html', context)
 
-
 @login_required
 def edit_question(request, challenge_id):
     associated_challenge_obj = Challenge.objects.get(id=challenge_id)
@@ -205,6 +191,7 @@ def edit_question(request, challenge_id):
             if question_title and question_choices: #if they are not null, not empty
                 quesion_obj = Question(parent_challenge=associated_challenge_obj, text=question_title)
                 quesion_obj.save()
+
 
                 #confirm question obj
                 for question_choice_text in question_choices:
@@ -234,7 +221,83 @@ def delete_question(request, question_id):
     else:
         return redirect('index')
 
+def challenge(request, challenge_id):
+    challenge_obj = Challenge.objects.get(pk=challenge_id)
+
+    # require authenticate
+    if not request.user.is_authenticated:
+        return redirect('require_login')
+
+    if (challenge_obj.password != '0000'):
+        # check if User is Candidate for this Challenge
+        if not CandidateRole.objects.filter(associated_challenge=challenge_obj.id,
+        associated_user=request.user.id):
+            return redirect('enter_challenge_password', challenge_id=challenge_obj.id)
+
+    if (request.method == 'POST'):
+        challenge_question_count = 0
+        correct_answer_count = 0
+
+        challenge_report_obj = ChallengeReport(
+        associated_challenge=challenge_obj,
+        associated_candidate=request.user)
+        challenge_report_obj.save()
+        # !! does not generalize,
+        # assumes that all keys in request.POST
+        # is a form_question
+        for challenge_question in request.POST:
+            if challenge_question == "csrfmiddlewaretoken":
+                continue
+
+            user_choice_id = request.POST[challenge_question]
+            choice_obj = QuestionChoice.objects.get(id=user_choice_id)
+
+
+            ChallengeReportQuestionSubmission(
+                parent_challenge_report=challenge_report_obj,
+                associated_question=choice_obj.parent_question,
+                submitted_question_choice=choice_obj
+            ).save()
+
+            if choice_obj.correct_answer:
+                correct_answer_count += 1
+
+            challenge_question_count += 1
+
+        setattr(challenge_report_obj, "questions_count", challenge_question_count)
+        setattr(challenge_report_obj, "correct_answer_count", correct_answer_count)
+        challenge_report_obj.save()
+
+        context = {
+            'challenge': challenge_obj,
+            'correct_answer_count': correct_answer_count,
+            'form_question_count': challenge_question_count,
+            'percentage_correct': round( (correct_answer_count /  challenge_question_count) * 100, 2)
+        }
+
+        return render(request, 'app/challenge_report.html', context)
+
+    else:
+        context = {
+            "challenge": challenge_obj,
+            "form": app.forms.ChallengePresentationalForm(challenge_id)
+        }
+
+        preview = "preview" in request.path
+
+        if preview:
+            context["preview"] = True
+
+        return render(request, 'app/challenge.html', context)
+
 @login_required
 def view_challenge_analytics(request, challenge_id):
-    context = {}
+    # for given challenge get all challenge reports
+    challenge_reports = ChallengeReport.objects.filter(associated_challenge=challenge_id)
+    challenge_reports_with_scores = [
+        { "report": report, "score": round((report.correct_answer_count / report.questions_count)*100, 2) }
+        for report in challenge_reports
+    ]
+
+    context = { "challenge_reports": challenge_reports_with_scores }
     return render(request, 'app/challenge_analytics.html', context)

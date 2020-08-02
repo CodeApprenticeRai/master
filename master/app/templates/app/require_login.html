@@ -1,6 +1,15 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html><html>
   <head>
-    <title>Master: {{challenge.name}} Analytics</title>
+    <title>Master: Challenges</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS only -->
@@ -39,6 +48,7 @@
 
     .table-section {
       padding-top: 2rem;
+
     }
 
     .common-text {
@@ -62,42 +72,31 @@
     </style>
 
   </head>
-  <body>
+  <center>
+  <body tex>
       <div id='site-wrapper'>
         <div id="site-header" class="">
           <div class="container">
             <div class="row">
               <a class="master-symbol" href="{% url 'index' %}">Master</a>
-              <a id="logout-button" class="align-self-end float-right text-right justify-content-end ml-auto" href="{% url 'logout' %}">Logout</a>
             </div>
           </div>
         </div>
-          <div id=""  class="container page-content">
-            <div class="table-section" >
-              <p>Challenge Designer</p>
-              <table class="table table-bordered common-text table-sm">
-                <thead class="thead-dark site-table-header">
-                <tr>
-                  <th scope="col">Username</th>
-                  <th scope="col">Number Correct Answers</th>
-                  <th scope="col">Number of Questions</th>
-                  <th scope="col">Score (%)</th>
-                  <th scope="col"></th>
-                </tr>
-                </thead>
-                {% for report in challenge_reports  %}
-                <tr>
-                  <td><a href="#">@{{report.report.associated_candidate}}</a></td>
-                  <td><a href="#">{{report.report.correct_answer_count}}</a></td>
-                  <td><a href="#">{{report.report.questions_count}}</a></td>
-                  <td><a href="#">{{report.score}}</a></td>
-                  <td></td>
-                </tr>
-                {% endfor %}
-              </table>
-            </div>
-
-          </div>
-        </div>
+          <br>
+          <br>
+      <div style="width:450px;height:300px;border:1px solid #000;" id=""  class="container page-content">
+          <br>
+          <br>
+          <br>
+          <br>
+          <h5 class="header-margin">You must be logged in to view this Challenge</h5>
+          <br>
+          <br>
+        <form method="POST">
+          {% csrf_token %}
+            <div class="col-auto"><input type="submit" name="Login | Sign Up" value="Login | Sign Up" class="btn btn-primary btn-sm"></div>
+        </form>
+      </div>
   </body>
+  </center>
 </html>
