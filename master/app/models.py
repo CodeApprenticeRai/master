@@ -45,15 +45,18 @@ class QuestionChoice(models.Model):
         return self.text
 
 
-class Scorecard(models.Model):
-    associated_challenge = models.ForeignKey(Challenge, on_delete=models.PROTECT)
-    associated_user = models.ForeignKey(User, on_delete=models.PROTECT)
-    score = models.IntegerField()
+class ChallengeReport(models.Model):
+    associated_challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
+    associated_candidate = models.ForeignKey(User, on_delete=models.CASCADE)
+    time_submitted = models.DateTimeField(auto_now=True)
+    questions_count = models.IntegerField(null=True)
+    correct_answer_count = models.IntegerField(null=True)
 
-    def __init__(self, chall, use, points):
-        self.associated_challenge = chall
-        self.associated_user = use
-        self.score = points
+
+class ChallengeReportQuestionSubmission(models.Model):
+    parent_challenge_report = models.ForeignKey(ChallengeReport, on_delete=models.CASCADE)
+    associated_question = models.ForeignKey(Question, models.CASCADE)
+    submitted_question_choice = models.ForeignKey(QuestionChoice, models.CASCADE)
 
     def __str__(self):
-        return self.score
+        return "<class ChallengeReportQuestionSubmission: (id,{})>".format(self.id)

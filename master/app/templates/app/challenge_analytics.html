@@ -79,23 +79,21 @@
                 <thead class="thead-dark site-table-header">
                 <tr>
                   <th scope="col">Username</th>
-                  <th scope="col">Number Answered Wrong</th>
-                  <th scope="col">Number of Question</th>
+                  <th scope="col">Number Correct Answers</th>
+                  <th scope="col">Number of Questions</th>
                   <th scope="col">Score (%)</th>
                   <th scope="col"></th>
                 </tr>
                 </thead>
-                {% if challenge_candidates %}
-                {% for user in challenge_canidates  %}
+                {% for report in challenge_reports  %}
                 <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
+                  <td><a href="#">@{{report.report.associated_candidate}}</a></td>
+                  <td><a href="#">{{report.report.correct_answer_count}}</a></td>
+                  <td><a href="#">{{report.report.questions_count}}</a></td>
+                  <td><a href="#">{{report.score}}</a></td>
                   <td></td>
                 </tr>
                 {% endfor %}
-                {% endif %}
               </table>
             </div>
 
